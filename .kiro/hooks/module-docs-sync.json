@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "module-docs-sync",
+      "description": "Update documentation and create test skeleton when new engine modules are added",
+      "trigger": "FileCreate",
+      "matcher": "(^|/)packages/engine/src/modules/[^/]+\\.ts$",
+      "action": {
+        "type": "agent",
+        "prompt": "A new engine module file was created. Your task: (1) Add or update its entry in docs/module-reference.md with the module's type, category, input/output ports, config fields extracted from its Zod schema, and a brief example snippet. (2) If this is a new module with a themed name, update the themed-label table in .kiro/steering/product.md with the mapping of themed label to plain name. (3) Ensure a colocated test file <name>.test.ts exists with fast-check property tests; if missing, create a skeleton test file. Do not modify any other files."
+      }
+    }
+  ]
+}

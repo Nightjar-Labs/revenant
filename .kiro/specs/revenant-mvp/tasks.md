@@ -1,0 +1,466 @@
+# Implementation Plan
+
+- [ ] 1. Workspace scaffold and tooling configuration
+  - Initialize npm workspaces monorepo with `packages/engine`, `packages/server`, `packages/web`
+  - Configure TypeScript strict mode with `noUncheckedIndexedAccess` in root and per-package `tsconfig.json`
+  - Install and configure Vitest with `fast-check` for property-based testing
+  - Install and configure ESLint + Prettier with shared configs
+  - Verify MIT LICENSE file exists in project root
+  - Create `data/pipes/` directory for runtime storage
+  - Set up `npm run dev`, `npm run test`, `npm run lint`, `npm run build` scripts in root `package.json`
+  - _Requirements: 1, 2, 3, 11_
+
+- [ ] 2. Engine core types and Item model
+  - Define `Item` interface with required fields (`title`, `link`, `guid`, `date`) and optional fields (`content`, `extra`)
+  - Create `ItemSchema` Zod schema with validation and coercion rules
+  - Implement `deriveGuid` function: use source's `guid` if present, else `link`, else `sha1(title + date)`
+  - Define `ModuleDefinition`, `PipelineGraph`, `PipelineRunResult`, `ExecutionDeps`, `Fetcher`, `Clock` interfaces
+  - Create `PipelineGraphSchema` Zod schema validating `nodes`, `edges`, and `meta` structure
+  - Write unit tests verifying `ItemSchema` validates required fields and coerces optional fields
+  - Write unit tests for `deriveGuid` with various input cases (present guid, missing guid, missing link)
+  - _Requirements: 1.1, 3.1, 3.2, 3.3, 3.4_
+  - _Properties: 8 (types support deterministic execution)_
+
+- [ ] 3. Module registry, DAG validator, and topological sort
+  - 3.1. Implement module registry as `Map<string, ModuleDefinition>` with registration function
+  - 3.2. Implement DAG validator in `packages/engine/src/dag/validator.ts`:
+    - Validate JSON structure against `PipelineGraphSchema`
+    - Check all node types exist in registry (error: "Unknown module type: <type>")
+    - Validate each node's `config` against its module's `configSchema`
+    - Detect cycles using DFS with recursion stack and return cycle path
+    - Ensure exactly one node has `type === 'output'`
+    - Validate port names: `sourcePort` exists in source node's `outputPorts`, `targetPort` in target's `inputPorts`
+    - Reject multiple edges to the same non-union input port
+    - Return typed `PipelineGraph` or `ValidationError[]`
+  - 3.3. Implement topological sort using Kahn's algorithm in `packages/engine/src/dag/sort.ts`
+  - 3.4. Write unit tests for validator:
+    - Valid graphs (linear, fan-out, fan-in)
+    - Cyclic graphs (self-loop, A→B→A, A→B→C→A) — assert error message includes cycle path
+    - Zero output nodes, multiple output nodes
+    - Invalid port connections (non-existent ports)
+    - Unknown module type
+    - Multiple edges to same input port (non-union)
+  - 3.5. Write unit tests for topological sort with various valid graph structures
+  - _Requirements: 1.2, 1.3, 1.4_
+  - _Properties: 11 (cycle detection), 12 (unique output), 13 (port existence), 21 (node count limit — implement in validator with max 20 nodes check)_
+
+- [ ] 4. Pipeline runner with error isolation, timeout, and output cap
+  - 4.1. Implement `run` function in `packages/engine/src/runner/run.ts`:
+    - Accept `PipelineGraph`, `ExecutionDeps` with injected `Fetcher`, `Clock`, `registry`, and optional `AbortSignal`
+    - Compute topological sort
+    - Initialize `nodeResults` map
+    - Execute nodes in order:
+      - Gather inputs from upstream `nodeResults` via edges
+      - If all connected inputs are from failed nodes, propagate error
+      - Wrap `execute` call in try-catch, capture errors per node
+      - Mark failed nodes with `{ items: [], error: { message } }`
+      - Continue execution of downstream nodes with available inputs
+    - Cap output node items at 500 (log warning if truncated)
+    - Return `PipelineRunResult` with `success`, `nodeResults`, `outputItems`
+  - 4.2. Write unit tests:
+    - Linear pipeline with all nodes succeeding
+    - Pipeline with mid-graph failure — assert error isolated, downstream continues if inputs available
+    - Pipeline with source failure — assert error propagates to all dependent nodes
+    - Pipeline with output truncation (501 items → 500 in `outputItems`)
+  - 4.3. Write runner integration test using in-test stub `ModuleDefinition`s:
+    - Define three minimal stub modules inside the test file and register them in a local registry (do **not** import real operator modules):
+      - `source-stub`: no config, zero input ports, one output port `out`; `execute` returns a fixed array of 3 `Item` objects
+      - `passthrough-stub`: no config, one input port `items`, one output port `out`; `execute` returns inputs unchanged
+      - `output-stub`: no config, one input port `items`, one output port `out`; `execute` returns inputs unchanged (mirrors the real output contract)
+    - Build a linear `PipelineGraph` programmatically: `source-stub → passthrough-stub → output-stub`
+    - Run the pipeline with `run(graph, { fetcher: <never called>, clock: systemClock, registry: localRegistry })`
+    - Assert `nodeResults` is populated for all three nodes
+    - Assert `outputItems` equals the 3 items emitted by the source stub
+    - Assert determinism: run twice, assert `outputItems` deeply equal (Property 8)
+  - _Requirements: 2.1, 2.2, 2.3, 2.4, 12.3_
+  - _Properties: 8 (deterministic execution with injected deps), 9 (clock injection), 10 (fetcher injection), 22 (output truncation)_
+
+- [ ] **Checkpoint — ensure all tests pass for core engine (types, validator, runner)**
+
+- [ ] 5. Core operators (Group 1: Filter, Sort, Unique, Reverse)
+  - 5.1. Implement `filter` operator in `packages/engine/src/modules/filter.ts`:
+    - Define `FilterConfigSchema` with `mode` ('all' | 'any') and `rules` array
+    - Support ops: `contains`, `notContains`, `equals`, `regex`, `dateBefore`, `dateAfter`
+    - Validate regex patterns in config schema (reject at validation time if invalid)
+    - Cap field values at 64 KB before regex matching (ReDoS mitigation)
+    - Support configurable regex flags (default 'g')
+    - Export `ModuleDefinition` with `type: 'filter'`, `category: 'operators'`, `themedLabel: 'Banish'`, `plainLabel: 'Filter'`
+    - Write unit tests: contains, notContains, equals, regex, date ops, mode 'all' vs 'any'
+    - Write fast-check property test: every output item is in input (Property 6)
+  - 5.2. Implement `sort` operator in `packages/engine/src/modules/sort.ts`:
+    - Define `SortConfigSchema` with `field` and `order` ('asc' | 'desc')
+    - Implement stable sort (preserve input order for equal keys)
+    - Export `ModuleDefinition` with themed/plain labels
+    - Write unit tests: ascending/descending, string/date fields
+    - Write fast-check property tests: length preserved (Property 5), correctly ordered, stable (Property 4), idempotent for stable inputs
+  - 5.3. Implement `unique` operator in `packages/engine/src/modules/unique.ts`:
+    - Define `UniqueConfigSchema` with `field` (default 'guid')
+    - Keep first occurrence of each distinct value
+    - Export `ModuleDefinition`
+    - Write unit tests: dedupe by guid, dedupe by title, empty input
+    - Write fast-check property tests: idempotent (Property 2), order-preserving subsequence (Property 3)
+  - 5.4. Implement `reverse` operator in `packages/engine/src/modules/reverse.ts`:
+    - No config required
+    - Export `ModuleDefinition`
+    - Write unit tests: reverse non-empty array, reverse empty array
+    - Write fast-check property test: involution (Property 7)
+  - _Requirements: 6.1, 6.2, 6.4, 6.8_
+  - _Properties: 2, 3, 4, 5, 6, 7_
+
+- [ ] 6. Core operators (Group 2: Union, Regex, Rename, Truncate)
+  - 6.1. Implement `union` operator in `packages/engine/src/modules/union.ts`:
+    - Declare fixed input ports `in1`, `in2`, `in3`, `in4`
+    - Concatenate inputs in port order
+    - No deduplication
+    - Export `ModuleDefinition`
+    - Write unit tests: union of two arrays, union with empty arrays, order preservation
+    - Write fast-check property test: length sum (Property 1)
+  - 6.2. Implement `regex` operator in `packages/engine/src/modules/regex.ts`:
+    - Define `RegexConfigSchema` with `field`, `pattern`, `replacement`, `flags` (default 'g')
+    - Validate pattern at validation time (reject invalid regex with error message and position)
+    - Cap field values at 64 KB before matching
+    - Export `ModuleDefinition` with `themedLabel: 'Transmute (Regex)'`, `plainLabel: 'Regex'`
+    - Write unit tests: replace in title, replace in content, invalid pattern rejected
+  - 6.3. Implement `rename` operator in `packages/engine/src/modules/rename.ts`:
+    - Define `RenameConfigSchema` with `map` (object: old field → new field)
+    - Rename fields in `extra` only (preserve core fields unless explicitly mapped)
+    - Export `ModuleDefinition` with `themedLabel: 'Transmute (Rename)'`, `plainLabel: 'Rename'`
+    - Write unit tests: rename custom field in extra, no-op for unmapped fields
+  - 6.4. Implement `truncate` operator in `packages/engine/src/modules/truncate.ts`:
+    - Define `TruncateConfigSchema` with `limit` (integer)
+    - Return first `limit` items
+    - Export `ModuleDefinition`
+    - Write unit tests: truncate to 5, truncate with limit > length, limit = 0
+  - _Requirements: 6.3, 6.5, 6.6, 6.7_
+  - _Properties: 1_
+
+- [ ] 7. Output module
+  - Implement `output` operator in `packages/engine/src/modules/output.ts`:
+    - No config required (output is the final aggregation point)
+    - Single input port `items`, single output port `out` (pass-through)
+    - Export `ModuleDefinition` with `type: 'output'`, `category: 'output'`, `themedLabel: 'Raise Output'`, `plainLabel: 'Output'`
+    - Write unit test: output node passes items through unchanged
+  - _Requirements: 1.2 (exactly one output node), 8.1 (output node feeds serializers)_
+
+- [ ] 8. Fetch-feed and fetch-json source modules
+  - 8.1. Implement `fetch-feed` operator in `packages/engine/src/modules/fetch-feed.ts`:
+    - Define `FetchFeedConfigSchema` with `url` (string)
+    - Call `deps.fetcher.fetch(url)` (injected)
+    - Parse RSS 2.0 and Atom 1.0 with `fast-xml-parser`
+    - Map entries to `Item[]` using appropriate field mappings (RSS: title, link, guid/link fallback, pubDate→date, description/content:encoded→content; Atom: title text, link[@rel='alternate']/@href, id, updated→date, content/summary→content)
+    - Use `deps.clock.now()` fallback for missing `pubDate`/`updated` and log warning
+    - Use `deriveGuid` for stable GUID derivation
+    - Export `ModuleDefinition` with `category: 'sources'`, `themedLabel: 'Summon (Fetch Feed)'`, `plainLabel: 'Fetch Feed'`
+    - Write unit tests with mocked fetcher:
+      - Valid RSS feed → items array
+      - Valid Atom feed → items array
+      - Missing pubDate → fallback to clock.now()
+      - Fetch error → throw with descriptive message
+      - Invalid XML → throw parsing error
+  - 8.2. Implement `fetch-json` operator in `packages/engine/src/modules/fetch-json.ts`:
+    - Define `FetchJsonConfigSchema` with `url`, `itemsPath` (JSONPath), `fieldMap` (object: Item field → JSONPath), `defaults` (object: field → fallback value)
+    - Call `deps.fetcher.fetch(url)`
+    - Parse JSON response
+    - Evaluate `itemsPath` with `jsonpath-plus` to extract candidate items
+    - For each candidate, evaluate field map paths and construct `Item`, falling back to `defaults` for missing paths
+    - Store unmapped top-level keys in `extra`
+    - Use `deriveGuid` for stable GUID
+    - Export `ModuleDefinition` with `category: 'sources'`, `themedLabel: 'Summon (Fetch JSON)'`, `plainLabel: 'Fetch JSON'`
+    - Write unit tests with mocked fetcher:
+      - Valid JSON with itemsPath → items array
+      - Missing field with default → fallback applied
+      - itemsPath returns empty → empty items array (no error)
+      - Fetch error → throw
+      - Invalid JSON → throw
+  - _Requirements: 4.1, 4.2, 4.3, 4.4, 5.1, 5.2, 5.3, 5.4_
+  - _Properties: 9 (clock injection for date fallback), 10 (fetcher injection)_
+
+- [ ] 9. RSS, Atom, and JSON Feed serializers
+  - 9.1. Implement `serializeRss` in `packages/engine/src/serializers/rss.ts`:
+    - Generate RSS 2.0 XML with `<channel>` and `<item>` elements
+    - Map `Item` fields: title→title, link→link, guid→guid, date→pubDate (RFC 2822), content→description
+    - Escape XML entities in all text fields
+    - Accept `meta` with `title` and `link` for feed-level elements
+  - 9.2. Implement `serializeAtom` in `packages/engine/src/serializers/atom.ts`:
+    - Generate Atom 1.0 XML with `<feed>` and `<entry>` elements
+    - Map `Item` fields: title→title, link→link[@rel='alternate'], guid→id, date→updated (ISO 8601), content→content[@type='html']
+    - Escape XML entities
+  - 9.3. Implement `serializeJsonFeed` in `packages/engine/src/serializers/json-feed.ts`:
+    - Generate JSON Feed 1.1 object
+    - Map `Item` fields: title→title, link→url, guid→id, date→date_published, content→content_html
+    - Include top-level `version`, `title`, `home_page_url`, `feed_url`
+  - 9.4. Write round-trip property tests for all three formats (fast-check):
+    - Generate random `Item[]`, serialize, parse back with a feed parser, assert core fields match (Properties 14, 15, 16)
+    - Use a lenient parser for RSS/Atom (e.g., `fast-xml-parser` for parsing, standard library for JSON)
+  - 9.5. Write unit tests:
+    - Serialize single item → validate XML/JSON structure
+    - Serialize empty array → valid feed with zero entries
+    - Special characters in title/content → properly escaped
+  - _Requirements: 8.1_
+  - _Properties: 14 (RSS round-trip), 15 (Atom round-trip), 16 (JSON Feed round-trip)_
+
+- [ ] 10. SSRF-safe fetcher implementation
+  - 10.1. Implement `SSRFFetcher` class in `packages/server/src/fetcher.ts`:
+    - Build `net.BlockList` with all forbidden ranges in constructor (RFC 1918, loopback, link-local, CGNAT, 0.0.0.0/8, IPv6 unique-local, multicast, cloud metadata `169.254.169.254`)
+    - Implement `fetch(url)`:
+      - Validate scheme is `http:` or `https:`
+      - Strip credentials from URL
+      - Resolve hostname to IPs with `dns.lookup` (all addresses)
+      - Validate every resolved IP with `BlockList.check` (blocks IPv4, IPv6, and IPv4-mapped IPv6)
+      - Pin validated IP for connection using custom `undici.Agent` with `connect.lookup` override
+      - Enforce 5 MB response size limit (abort if exceeded, error "Response too large")
+      - Enforce 10s timeout using `AbortSignal.timeout`
+      - Follow redirects up to 5 hops, revalidate each redirect target's resolved IPs (DNS rebinding mitigation)
+      - Return `{ body, status, headers }`
+  - 10.2. Implement `SystemClock` class in `packages/server/src/clock.ts`:
+    - Implement `Clock` interface with `now()` returning `new Date()`
+  - 10.3. Write unit tests for `SSRFFetcher` (mock `dns.lookup` and `undici.request`):
+    - Public IP → success
+    - Private IP (10.x, 192.168.x, 127.x) → throws "SSRF attempt detected"
+    - Cloud metadata IP (169.254.169.254) → throws
+    - IPv6 loopback (::1) → throws
+    - IPv4-mapped private IPv6 (::ffff:192.168.1.1) → throws (BlockList handles this)
+    - Redirect to private IP → throws on redirect validation
+    - Response > 5 MB → throws "Response too large"
+    - Timeout after 10s → throws "Request timeout"
+    - Valid redirect to public IP → success
+  - _Requirements: 7.1, 7.2, 7.3_
+  - _Properties: 17 (SSRF blocks private IPs), 18 (blocks metadata endpoint), 19 (blocks IPv4-mapped private IPv6), 20 (DNS rebinding mitigation)_
+
+- [ ] **Checkpoint — ensure all tests pass for engine + SSRF fetcher**
+
+- [ ] 11. Hono server scaffold and pipeline storage
+  - 11.1. Initialize Hono app in `packages/server/src/index.ts`
+  - 11.2. Implement file-based storage helpers in `packages/server/src/storage.ts`:
+    - `loadPipe(id)` — read `data/pipes/<id>.pipe.json`, parse JSON, validate with engine validator, return `PipelineGraph | null`
+    - `savePipe(graph)` — write `data/pipes/<graph.meta.id>.pipe.json` as formatted JSON
+    - `listPipes()` — read `data/pipes/` directory, return array of `{ id, name }` from each file's `meta`
+    - `deletePipe(id)` — delete `data/pipes/<id>.pipe.json`
+  - 11.3. Create module registry instance in server, import and register all operator definitions from `packages/engine/src/modules/*.ts`
+  - 11.4. Write unit tests for storage helpers (use temp directory):
+    - `savePipe` writes file, `loadPipe` reads and validates
+    - `loadPipe` returns null for non-existent file
+    - `listPipes` returns all pipe metadata
+  - _Requirements: 1 (pipeline schema validation on load/save), 9.1, 9.2_
+
+- [ ] 12. Hono API routes: CRUD and preview
+  - 12.1. Implement `GET /api/modules`:
+    - Return JSON array of all registered modules with `type`, `category`, `themedLabel`, `plainLabel`, `inputPorts`, `outputPorts`, `configSchema` (convert Zod to JSON Schema using `zod-to-json-schema`)
+  - 12.2. Implement `GET /api/pipes`:
+    - Call `listPipes()`, return JSON array of `{ id, name }`
+  - 12.3. Implement `GET /api/pipes/:id`:
+    - Call `loadPipe(id)`, return pipeline JSON or 404
+  - 12.4. Implement `POST /api/pipes`:
+    - Parse request body, validate with engine validator
+    - Generate slug `id` from `meta.name` (lowercase, hyphens, unique in `data/pipes/`)
+    - Call `savePipe(graph)`, return 201 with created pipeline
+    - Return 422 with validation errors if validation fails
+  - 12.5. Implement `PUT /api/pipes/:id`:
+    - Parse request body, validate
+    - Call `savePipe(graph)` (overwrites existing file)
+    - Invalidate Haunting cache for this id (implement cache in task 13)
+    - Return 200 with updated pipeline or 422 with errors
+  - 12.6. Implement `DELETE /api/pipes/:id`:
+    - Call `deletePipe(id)`, return 204
+  - 12.7. Implement `POST /api/pipes/:id/run`:
+    - Call `loadPipe(id)`, return 404 if not found
+    - Create `AbortSignal.timeout(30_000)` (30s timeout per Req 12.1)
+    - Call `run(graph, { fetcher: SSRFFetcher, clock: SystemClock, registry }, signal)`
+    - Return 200 with `PipelineRunResult` JSON (includes `nodeResults` for Ghost Inspector)
+  - 12.8. Implement `POST /api/pipes/preview`:
+    - Parse request body as unsaved pipeline, validate
+    - Create `AbortSignal.timeout(30_000)`
+    - Call `run(graph, deps, signal)`, return 200 with result or 422 with errors
+  - 12.9. Write route tests (Hono `app.request` helper):
+    - `GET /api/modules` → returns module list
+    - `POST /api/pipes` with valid payload → 201 + file exists in `data/pipes/`
+    - `POST /api/pipes` with invalid config → 422
+    - `PUT /api/pipes/:id` → 200 + file updated
+    - `DELETE /api/pipes/:id` → 204 + file deleted
+    - `POST /api/pipes/:id/run` with valid pipeline + mocked fetcher → 200 + `nodeResults`
+    - `POST /api/pipes/preview` with fetch error → 200 + `success: false` + error in `nodeResults`
+  - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8_
+
+- [ ] 13. Haunting endpoints with ETag, TTL cache, and single-flight
+  - 13.1. Implement cache layer in `packages/server/src/cache.ts`:
+    - TTL-based LRU cache with max 100 entries (evict least-recently-used when full)
+    - Methods: `get(key)`, `set(key, value, { ttl })`, `invalidate(key)`, `clear()`
+    - Each cached entry stores `{ etag, body, expiresAt }`
+  - 13.2. Implement single-flight mechanism in `packages/server/src/single-flight.ts`:
+    - Track in-flight promises in `Map<string, Promise<T>>`
+    - Method: `do(key, fn)` — if key exists in map, await existing promise; else create new promise from `fn()`, store in map, await, remove from map on completion, return result
+  - 13.3. Implement `GET /h/:id.xml`, `GET /h/:id.atom`, `GET /h/:id.json` in `packages/server/src/routes.ts`:
+    - Check `If-None-Match` header; if matches cached etag → return 304 with empty body
+    - Check cache for `<id>.<format>` key; if hit and not expired → return cached body + etag header
+    - If cache miss or expired, use single-flight to execute pipeline:
+      - Load pipe with `loadPipe(id)` → 404 if not found
+      - Validate graph → 422 if validation fails
+      - Create `AbortSignal.timeout(30_000)`
+      - Run pipeline with `run(graph, deps, signal)` → 504 if timeout, 502 if upstream fetch error, 500 if other error
+      - Serialize `outputItems` to requested format (RSS/Atom/JSON Feed)
+      - Compute etag as SHA-256 hash of serialized body
+      - Store in cache with TTL 5 minutes (300_000 ms)
+      - Return 200 with serialized body + `ETag` header + appropriate `Content-Type`
+  - 13.4. Write route tests:
+    - Valid pipeline + mocked fetcher → 200 + RSS body + ETag header
+    - Second request with `If-None-Match: <etag>` → 304
+    - Third request after cache expiry (mock time) → 200 + new execution + new ETag
+    - Concurrent requests (simulate with Promise.all) → only one execution, both receive same result (Property 23)
+    - Pipeline not found → 404
+    - Pipeline validation error → 422
+    - Pipeline execution timeout → 504
+    - Upstream fetch error → 502
+  - _Requirements: 8.2, 8.3, 8.4, 8.5, 12.1, 12.4_
+  - _Properties: 23 (single-flight de-duplication)_
+
+- [ ] **Checkpoint — ensure all tests pass for server routes and Haunting endpoints**
+
+- [ ] 14. Engine end-to-end fixture test
+  - 14.1. Create fixture pipeline JSON file in `packages/engine/src/__tests__/fixtures/e2e-pipeline.pipe.json`:
+    - Nodes: fetch-feed (mocked RSS response) → filter (title contains "JavaScript") → sort (by date desc) → output
+    - Edges: feed→filter→sort→output
+  - 14.2. Create fixture RSS file in `packages/engine/src/__tests__/fixtures/feed.xml` with 10 items (5 contain "JavaScript", 5 do not)
+  - 14.3. Write test in `packages/engine/src/__tests__/e2e.test.ts`:
+    - Load fixture pipeline, validate
+    - Mock fetcher to return fixture RSS
+    - Run pipeline
+    - Assert `outputItems.length === 5` (filtered)
+    - Assert items sorted by date descending
+    - Serialize to RSS, Atom, JSON Feed
+    - Parse each serialized output and assert core fields preserved (Properties 14-16)
+    - Assert deterministic: run twice with same mocked fetcher, assert `outputItems` arrays deeply equal (Property 8)
+  - 14.4. Write integration test with real operator modules and mocked fetcher (the test that was deferred from task 4.3):
+    - Build a `PipelineGraph` programmatically: fetch-feed → filter (title contains "JavaScript") → output
+    - Mock fetcher to return the fixture RSS from `feed.xml`
+    - Run pipeline with the full module registry
+    - Assert `nodeResults` is populated for all three nodes
+    - Assert `outputItems` contains only items whose title includes "JavaScript"
+  - _Requirements: 11.3_
+  - _Properties: 8 (deterministic), 14 (RSS round-trip), 15 (Atom), 16 (JSON Feed)_
+
+- [ ] 15. Web scaffold: Vite + React 19 + @xyflow/react
+  - 15.1. Initialize Vite app in `packages/web/` with React 19 and TypeScript
+  - 15.2. Install `@xyflow/react`, `zustand` (or similar state library), `react-router-dom` (if multi-page), CSS framework (or Tailwind)
+  - 15.3. Set up dev server with proxy to `http://localhost:3000` (Hono server) for `/api/*` and `/h/*` routes
+  - 15.4. Create basic App component with four-pane layout:
+    - Left sidebar (Palette)
+    - Center canvas (@xyflow/react)
+    - Right sidebar (ConfigPanel)
+    - Bottom pane (GhostInspector)
+  - 15.5. Fetch module registry from `GET /api/modules` on app load and store in Zustand state
+  - _Requirements: 10 (UI structure)_
+
+- [ ] 16. Module palette and canvas with drag-and-drop
+  - 16.1. Implement `Sidebar` component in `packages/web/src/components/Sidebar.tsx`:
+    - Group modules by category (Sources, Operators, Output)
+    - Render each module as draggable item with themed label and plain name in parentheses (e.g., "Banish (Filter)")
+  - 16.2. Implement `Canvas` component in `packages/web/src/components/Canvas.tsx`:
+    - Use `<ReactFlow>` with `nodes`, `edges`, `onNodesChange`, `onEdgesChange`, `onConnect` from Zustand store
+    - Implement custom node types rendering input/output ports labeled by port name
+    - On drag from palette onto canvas:
+      - Create new node with generated unique ID (e.g., `node-<uuid>`)
+      - Set `type` to module type, `config` to empty object (or default from module's config schema)
+      - Add to `nodes` array in store
+    - On edge connect:
+      - Validate port types match (both `items` or both `string`, etc.)
+      - If mismatch, reject connection and show tooltip "Incompatible port types"
+      - Add edge to `edges` array in store
+    - On node click:
+      - Set `selectedNode` in store
+      - Trigger config panel update
+  - 16.3. Implement custom node component rendering themed + plain labels (e.g., node header shows "Banish (Filter)")
+  - _Requirements: 10.1, 10.2, 10.3_
+
+- [ ] 17. Config panel per module type
+  - 17.1. Implement `ConfigPanel` component in `packages/web/src/components/ConfigPanel.tsx`:
+    - Read `selectedNode` from store
+    - If no node selected, show placeholder "Select a node to configure"
+    - If node selected, render dynamic form based on module's `configSchema` (from module registry)
+  - 17.2. Implement form generator from JSON Schema (converted from Zod):
+    - String fields → text input
+    - Enum fields → dropdown or radio buttons
+    - Array fields (e.g., filter rules) → dynamic list with add/remove buttons
+    - Nested objects → grouped fieldsets
+  - 17.3. On config change, update `nodes[selectedNode.id].config` in store
+  - 17.4. For fetch-feed and fetch-json, render URL input field
+  - 17.5. For filter, render rule builder with field/op/value rows
+  - _Requirements: 10.1 (config panel per node type)_
+
+- [ ] 18. Ghost Inspector with per-node item preview
+  - 18.1. Implement `GhostInspector` component in `packages/web/src/components/GhostInspector.tsx`:
+    - Read `selectedNode` and `nodeResults` from store
+    - If no node selected, show placeholder "Select a node to inspect"
+    - If node selected, show `nodeResults[selectedNode.id].items` in a table with columns: Title, Link, Date
+    - If node has error, show error message in red banner above table
+    - Limit table to first 20 items (paginate or virtualize if needed for large arrays)
+  - 18.2. Implement "Run Preview" button in toolbar:
+    - On click, call `POST /api/pipes/preview` with current `nodes` and `edges` from store
+    - On response, update `nodeResults` in store
+    - If any node has error, render error badge overlay on that node in canvas
+  - 18.3. Implement auto-preview toggle (optional for MVP):
+    - If enabled, debounce 1s after any graph change and auto-call preview endpoint
+  - _Requirements: 10.1 (Ghost Inspector shows per-node items), 10.4 (click node → update inspector), 10.5 (run preview, show errors)_
+
+- [ ] 19. Save, load, and pipe list
+  - 19.1. Implement "Save" button in toolbar:
+    - If pipeline has no `meta.id`, prompt for pipeline name, generate slug from name
+    - Call `POST /api/pipes` (new) or `PUT /api/pipes/:id` (existing) with current `nodes`, `edges`, `meta`
+    - On success, show toast "Pipeline saved"
+    - On error (422), show validation errors in toast or modal
+  - 19.2. Implement "Load" button in toolbar:
+    - Fetch `GET /api/pipes`, show modal with list of pipelines (id + name)
+    - On select, call `GET /api/pipes/:id`, deserialize into store (replace `nodes` and `edges`)
+    - Close modal, render loaded pipeline on canvas
+  - 19.3. Implement "New" button to clear canvas (reset `nodes`, `edges`, `nodeResults`, `selectedNode`)
+  - _Requirements: 10.6 (save), 10.7 (load)_
+
+- [ ] 20. Halloween theme polish and seeded example pipe
+  - 20.1. Apply Halloween-themed CSS:
+    - Dark purple/orange color palette
+    - Custom fonts (e.g., spooky serif for headers)
+    - Node shadows/borders with orange glow
+    - Canvas background with subtle graveyard or spiderweb pattern (optional)
+  - 20.2. Verify all module labels show themed + plain format (e.g., "Banish (Filter)") in palette, canvas, and config panel
+  - 20.3. Create example pipeline `data/pipes/hacker-news-rust-only.pipe.json`:
+    - fetch-feed from Hacker News RSS (https://news.ycombinator.com/rss)
+    - filter: title contains "Rust"
+    - sort: by date desc
+    - output
+    - Add `meta.name: "Hacker News — Rust Only"`
+  - 20.4. Test example pipeline:
+    - Start server, request `GET /h/hacker-news-rust-only.xml`
+    - Verify RSS output with filtered items
+    - Load pipeline in web editor, verify graph renders correctly
+  - _Requirements: 10.8 (themed + plain labels), product.md (Halloween naming convention)_
+
+- [ ] 21. README with quickstart and module reference
+  - 21.1. Write `README.md` in project root with sections:
+    - Introduction (Revenant purpose, target users)
+    - Installation (Node 22, `npm install`, `npm run build`)
+    - Quickstart (start server with `npm run dev`, open web editor, create first pipeline, view Haunting URL)
+    - Directory structure (packages/engine, packages/server, packages/web, data/pipes/)
+    - Example pipeline walkthrough (load `hacker-news-rust-only.pipe.json`, explain nodes)
+    - Module reference (auto-generate or hand-write table of all operators with descriptions, config fields, themed/plain labels)
+    - API reference (`GET /api/pipes`, `POST /api/pipes`, `GET /h/:id.*`, etc.)
+    - Testing (`npm test`, `npm run lint`)
+    - License (MIT)
+  - 21.2. Create `docs/module-reference.md` with detailed operator docs:
+    - Per operator: name, themed label, config schema, input/output ports, behavior description, examples
+    - Include SSRF protection notes for fetch-feed and fetch-json
+  - _Requirements: All (documentation of complete system)_
+
+- [ ] 22. Final checkpoint: run all tests, lint, and build
+  - Run `npm test` — assert all unit, property-based, integration, and e2e tests pass
+  - Run `npm run lint` — assert zero ESLint and Prettier errors
+  - Run `npm run build` — assert TypeScript compilation succeeds for all packages
+  - Manually test web editor:
+    - Load example pipeline, verify graph renders
+    - Run preview, verify Ghost Inspector shows items
+    - Edit config (change filter value), re-run preview, verify updated results
+    - Save pipeline (new name), verify file written to `data/pipes/`
+    - Request Haunting URL in browser, verify RSS/Atom/JSON output
+    - Request again with `If-None-Match` header (curl), verify 304 response
+  - Verify all 12 requirements are met (checklist in requirements.md)
+  - Verify all 23 correctness properties are tested (checklist: grep test files for Property comments)
+  - _Requirements: 1-12_
+  - _Properties: 1-23_

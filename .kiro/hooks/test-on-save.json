@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "test-on-save",
+      "description": "Run Vitest tests related to saved TypeScript files in packages/*/src",
+      "trigger": "PostFileSave",
+      "matcher": "(^|/)packages/[^/]+/src/.*\\.(ts|tsx)$",
+      "action": {
+        "type": "command",
+        "command": ".kiro/hooks/run-related-tests.sh"
+      },
+      "timeout": 120
+    }
+  ]
+}
