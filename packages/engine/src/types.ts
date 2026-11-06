@@ -17,6 +17,15 @@ export interface Item {
   extra?: Record<string, unknown> | undefined;
 }
 
+/** Feed-level metadata handed to the serializers. */
+export interface FeedMeta {
+  title: string;
+  /** Site URL the feed represents (RSS `<link>`, Atom alternate link, JSON Feed `home_page_url`). */
+  link: string;
+  /** URL of the feed itself. Defaults to `link` when omitted. */
+  feedUrl?: string | undefined;
+}
+
 /** Fetch response handed to modules by the injected `Fetcher`. */
 export interface FetchResult {
   body: string;

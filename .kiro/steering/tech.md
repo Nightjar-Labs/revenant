@@ -17,6 +17,7 @@ inclusion: always
 | Schema validation | Zod (pipeline schema, operator config) |
 | Feed parsing | fast-xml-parser |
 | JSON queries | jsonpath-plus |
+| HTTP client (server only) | undici (SSRF-safe fetcher with IP pinning) |
 | Testing | Vitest + fast-check (property-based) |
 | Linting / formatting | ESLint + Prettier |
 

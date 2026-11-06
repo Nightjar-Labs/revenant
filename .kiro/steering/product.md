@@ -32,6 +32,8 @@ Every themed label **must** also show its plain name in parentheses.
 | Themed label | Plain name |
 |---|---|
 | Summon | Source / Fetch |
+| Summon (Fetch Feed) | Fetch Feed |
+| Summon (Fetch JSON) | Fetch JSON |
 | Banish | Filter |
 | Séance | Union |
 | Exorcise | Dedupe (Unique) |

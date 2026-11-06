@@ -142,8 +142,8 @@
     - Write unit test: output node passes items through unchanged
   - _Requirements: 1.2 (exactly one output node), 8.1 (output node feeds serializers)_
 
-- [ ] 8. Fetch-feed and fetch-json source modules
-  - 8.1. Implement `fetch-feed` operator in `packages/engine/src/modules/fetch-feed.ts`:
+- [x] 8. Fetch-feed and fetch-json source modules
+  - [x] 8.1. Implement `fetch-feed` operator in `packages/engine/src/modules/fetch-feed.ts`:
     - Define `FetchFeedConfigSchema` with `url` (string)
     - Call `deps.fetcher.fetch(url)` (injected)
     - Parse RSS 2.0 and Atom 1.0 with `fast-xml-parser`
@@ -157,7 +157,7 @@
       - Missing pubDate → fallback to clock.now()
       - Fetch error → throw with descriptive message
       - Invalid XML → throw parsing error
-  - 8.2. Implement `fetch-json` operator in `packages/engine/src/modules/fetch-json.ts`:
+  - [x] 8.2. Implement `fetch-json` operator in `packages/engine/src/modules/fetch-json.ts`:
     - Define `FetchJsonConfigSchema` with `url`, `itemsPath` (JSONPath), `fieldMap` (object: Item field → JSONPath), `defaults` (object: field → fallback value)
     - Call `deps.fetcher.fetch(url)`
     - Parse JSON response
@@ -175,32 +175,32 @@
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 5.1, 5.2, 5.3, 5.4_
   - _Properties: 9 (clock injection for date fallback), 10 (fetcher injection)_
 
-- [ ] 9. RSS, Atom, and JSON Feed serializers
-  - 9.1. Implement `serializeRss` in `packages/engine/src/serializers/rss.ts`:
+- [x] 9. RSS, Atom, and JSON Feed serializers
+  - [x] 9.1. Implement `serializeRss` in `packages/engine/src/serializers/rss.ts`:
     - Generate RSS 2.0 XML with `<channel>` and `<item>` elements
     - Map `Item` fields: title→title, link→link, guid→guid, date→pubDate (RFC 2822), content→description
     - Escape XML entities in all text fields
     - Accept `meta` with `title` and `link` for feed-level elements
-  - 9.2. Implement `serializeAtom` in `packages/engine/src/serializers/atom.ts`:
+  - [x] 9.2. Implement `serializeAtom` in `packages/engine/src/serializers/atom.ts`:
     - Generate Atom 1.0 XML with `<feed>` and `<entry>` elements
     - Map `Item` fields: title→title, link→link[@rel='alternate'], guid→id, date→updated (ISO 8601), content→content[@type='html']
     - Escape XML entities
-  - 9.3. Implement `serializeJsonFeed` in `packages/engine/src/serializers/json-feed.ts`:
+  - [x] 9.3. Implement `serializeJsonFeed` in `packages/engine/src/serializers/json-feed.ts`:
     - Generate JSON Feed 1.1 object
     - Map `Item` fields: title→title, link→url, guid→id, date→date_published, content→content_html
     - Include top-level `version`, `title`, `home_page_url`, `feed_url`
-  - 9.4. Write round-trip property tests for all three formats (fast-check):
+  - [x] 9.4. Write round-trip property tests for all three formats (fast-check):
     - Generate random `Item[]`, serialize, parse back with a feed parser, assert core fields match (Properties 14, 15, 16)
     - Use a lenient parser for RSS/Atom (e.g., `fast-xml-parser` for parsing, standard library for JSON)
-  - 9.5. Write unit tests:
+  - [x] 9.5. Write unit tests:
     - Serialize single item → validate XML/JSON structure
     - Serialize empty array → valid feed with zero entries
     - Special characters in title/content → properly escaped
   - _Requirements: 8.1_
   - _Properties: 14 (RSS round-trip), 15 (Atom round-trip), 16 (JSON Feed round-trip)_
 
-- [ ] 10. SSRF-safe fetcher implementation
-  - 10.1. Implement `SSRFFetcher` class in `packages/server/src/fetcher.ts`:
+- [x] 10. SSRF-safe fetcher implementation
+  - [x] 10.1. Implement `SSRFFetcher` class in `packages/server/src/fetcher.ts`:
     - Build `net.BlockList` with all forbidden ranges in constructor (RFC 1918, loopback, link-local, CGNAT, 0.0.0.0/8, IPv6 unique-local, multicast, cloud metadata `169.254.169.254`)
     - Implement `fetch(url)`:
       - Validate scheme is `http:` or `https:`
@@ -212,9 +212,9 @@
       - Enforce 10s timeout using `AbortSignal.timeout`
       - Follow redirects up to 5 hops, revalidate each redirect target's resolved IPs (DNS rebinding mitigation)
       - Return `{ body, status, headers }`
-  - 10.2. Implement `SystemClock` class in `packages/server/src/clock.ts`:
+  - [x] 10.2. Implement `SystemClock` class in `packages/server/src/clock.ts`:
     - Implement `Clock` interface with `now()` returning `new Date()`
-  - 10.3. Write unit tests for `SSRFFetcher` (mock `dns.lookup` and `undici.request`):
+  - [x] 10.3. Write unit tests for `SSRFFetcher` (mock `dns.lookup` and `undici.request`):
     - Public IP → success
     - Private IP (10.x, 192.168.x, 127.x) → throws "SSRF attempt detected"
     - Cloud metadata IP (169.254.169.254) → throws
