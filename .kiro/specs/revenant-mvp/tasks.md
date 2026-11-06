@@ -414,20 +414,20 @@
   - [x] 19.3. Implement "New" button to clear canvas (reset `nodes`, `edges`, `nodeResults`, `selectedNode`)
   - _Requirements: 10.6 (save), 10.7 (load)_
 
-- [ ] 20. Halloween theme polish and seeded example pipe
-  - 20.1. Apply Halloween-themed CSS:
+- [x] 20. Halloween theme polish and seeded example pipe
+  - [x] 20.1. Apply Halloween-themed CSS:
     - Dark purple/orange color palette
     - Custom fonts (e.g., spooky serif for headers)
     - Node shadows/borders with orange glow
     - Canvas background with subtle graveyard or spiderweb pattern (optional)
-  - 20.2. Verify all module labels show themed + plain format (e.g., "Banish (Filter)") in palette, canvas, and config panel
-  - 20.3. Create example pipeline `data/pipes/hacker-news-rust-only.pipe.json`:
+  - [x] 20.2. Verify all module labels show themed + plain format (e.g., "Banish (Filter)") in palette, canvas, and config panel
+  - [x] 20.3. Create example pipeline `data/pipes/hacker-news-rust-only.pipe.json`:
     - fetch-feed from Hacker News RSS (https://news.ycombinator.com/rss)
     - filter: title contains "Rust"
     - sort: by date desc
     - output
     - Add `meta.name: "Hacker News — Rust Only"`
-  - 20.4. Test example pipeline:
+  - [x] 20.4. Test example pipeline:
     - Start server, request `GET /h/hacker-news-rust-only.xml`
     - Verify RSS output with filtered items
     - Load pipeline in web editor, verify graph renders correctly

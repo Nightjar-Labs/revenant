@@ -1,8 +1,26 @@
+/*
+ * Halloween theme: deep purple surfaces with pumpkin-orange accents.
+ * Fonts are system stacks only (no external font service at runtime).
+ */
 :root {
+  --bg: #120d1c;
+  --bg-raised: #1b1429;
+  --bg-input: #1f1730;
+  --border: #33264d;
+  --border-strong: #5a3f8c;
+  --text: #ece6f6;
+  --muted: #a094bd;
+  --orange: #ff8a1f;
+  --orange-soft: #ffb35c;
+  --orange-glow: rgb(255 138 31 / 45%);
+  --purple: #b48cff;
+  --font-display: 'Palatino Linotype', Palatino, 'Book Antiqua', 'Iowan Old Style', Georgia, serif;
+  --font-body: system-ui, sans-serif;
+
   color-scheme: dark;
-  font-family: system-ui, sans-serif;
-  background: #14111a;
-  color: #e8e4f0;
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
 }
 
 html,
@@ -38,12 +56,12 @@ body,
   margin: 1rem 0 0.25rem;
   font-size: 0.8rem;
   text-transform: uppercase;
-  color: #9a90b0;
+  color: var(--muted);
 }
 
 .sidebar {
   grid-area: sidebar;
-  border-right: 1px solid #2c2638;
+  border-right: 1px solid var(--border);
 }
 
 .canvas {
@@ -53,12 +71,12 @@ body,
 
 .config-panel {
   grid-area: config;
-  border-left: 1px solid #2c2638;
+  border-left: 1px solid var(--border);
 }
 
 .ghost-inspector {
   grid-area: inspector;
-  border-top: 1px solid #2c2638;
+  border-top: 1px solid var(--border);
 }
 
 .palette-list {
@@ -70,13 +88,13 @@ body,
 .palette-item {
   margin: 0.25rem 0;
   padding: 0.4rem 0.6rem;
-  border: 1px solid #2c2638;
+  border: 1px solid var(--border);
   border-radius: 4px;
-  background: #1d1826;
+  background: var(--bg-raised);
 }
 
 .muted {
-  color: #9a90b0;
+  color: var(--muted);
 }
 
 .error {
@@ -89,21 +107,24 @@ body,
 
 .module-node {
   min-width: 140px;
-  border: 1px solid #4a3f66;
+  border: 1px solid var(--border-strong);
   border-radius: 6px;
-  background: #1d1826;
-  color: #e8e4f0;
+  background: var(--bg-raised);
+  color: var(--text);
   font-size: 0.8rem;
+  box-shadow: 0 0 10px rgb(255 138 31 / 18%);
 }
 
 .module-node.selected {
-  border-color: #b48cff;
-  box-shadow: 0 0 0 2px rgba(180, 140, 255, 0.35);
+  border-color: var(--orange);
+  box-shadow:
+    0 0 0 2px var(--orange-glow),
+    0 0 18px var(--orange-glow);
 }
 
 .module-node-header {
   padding: 0.35rem 0.6rem;
-  border-bottom: 1px solid #2c2638;
+  border-bottom: 1px solid var(--border);
   font-weight: 600;
 }
 
@@ -117,7 +138,7 @@ body,
 .module-port {
   position: relative;
   padding: 0.15rem 0.6rem;
-  color: #9a90b0;
+  color: var(--muted);
 }
 
 .module-port-out {
@@ -144,7 +165,7 @@ body,
 }
 
 .config-label {
-  color: #9a90b0;
+  color: var(--muted);
 }
 
 .config-form input[type='text'],
@@ -152,9 +173,9 @@ body,
 .config-form input[type='number'],
 .config-form select {
   padding: 0.3rem 0.4rem;
-  border: 1px solid #4a3f66;
+  border: 1px solid var(--border-strong);
   border-radius: 4px;
-  background: #1d1826;
+  background: var(--bg-raised);
   color: inherit;
   font: inherit;
 }
@@ -162,7 +183,7 @@ body,
 .config-group {
   margin: 0;
   padding: 0.4rem 0.5rem;
-  border: 1px solid #2c2638;
+  border: 1px solid var(--border);
   border-radius: 4px;
   display: flex;
   flex-direction: column;
@@ -172,7 +193,7 @@ body,
 .config-group legend {
   padding: 0 0.25rem;
   font-size: 0.8rem;
-  color: #9a90b0;
+  color: var(--muted);
 }
 
 .config-array-row {
@@ -180,7 +201,7 @@ body,
   align-items: flex-start;
   gap: 0.4rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px dashed #2c2638;
+  border-bottom: 1px dashed var(--border);
 }
 
 .config-array-item {
@@ -193,9 +214,9 @@ body,
 
 .config-form button {
   padding: 0.25rem 0.6rem;
-  border: 1px solid #4a3f66;
+  border: 1px solid var(--border-strong);
   border-radius: 4px;
-  background: #1d1826;
+  background: var(--bg-raised);
   color: inherit;
   font: inherit;
   font-size: 0.8rem;
@@ -220,14 +241,14 @@ body,
   align-items: center;
   gap: 0.75rem;
   padding: 0.4rem 0.75rem;
-  border-bottom: 1px solid #2c2638;
+  border-bottom: 1px solid var(--border);
 }
 
 .toolbar button {
   padding: 0.25rem 0.75rem;
-  border: 1px solid #4a3f66;
+  border: 1px solid var(--border-strong);
   border-radius: 4px;
-  background: #1d1826;
+  background: var(--bg-raised);
   color: inherit;
   font: inherit;
   font-size: 0.85rem;
@@ -265,14 +286,14 @@ body,
 .inspector-table th,
 .inspector-table td {
   padding: 0.25rem 0.5rem;
-  border-bottom: 1px solid #2c2638;
+  border-bottom: 1px solid var(--border);
   text-align: left;
   vertical-align: top;
   overflow-wrap: anywhere;
 }
 
 .inspector-table a {
-  color: #b48cff;
+  color: var(--orange-soft);
 }
 
 .module-node {
@@ -281,6 +302,7 @@ body,
 
 .module-node.has-error {
   border-color: #ff7a7a;
+  box-shadow: 0 0 14px rgb(255 122 122 / 45%);
 }
 
 .module-node-badge {
@@ -316,7 +338,7 @@ body,
   max-height: 80vh;
   overflow: auto;
   padding: 1rem;
-  border: 1px solid #4a3f66;
+  border: 1px solid var(--border-strong);
   border-radius: 6px;
   background: #15111c;
 }
@@ -341,9 +363,9 @@ body,
 
 .modal-form input {
   padding: 0.3rem 0.5rem;
-  border: 1px solid #4a3f66;
+  border: 1px solid var(--border-strong);
   border-radius: 4px;
-  background: #1d1826;
+  background: var(--bg-raised);
   color: inherit;
   font: inherit;
 }
@@ -395,4 +417,97 @@ body,
 .toast-error {
   background: #4a1f28;
   border: 1px solid #d13b4f;
+}
+
+/* Halloween polish: display fonts, glow and a cobweb on the canvas. */
+h1,
+h2,
+h3,
+.toolbar-title,
+.module-node-header,
+.modal h2 {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+.toolbar {
+  background: linear-gradient(90deg, #1d1230, #2a1740 60%, #3a1d1f);
+  border-bottom-color: var(--border-strong);
+}
+
+.toolbar-title {
+  font-size: 1.4rem;
+  color: var(--orange);
+  text-shadow: 0 0 10px var(--orange-glow);
+}
+
+.toolbar button:hover:not(:disabled),
+.config-form button:hover,
+.pipe-list button:hover {
+  border-color: var(--orange);
+  box-shadow: 0 0 8px var(--orange-glow);
+}
+
+.pane h2 {
+  font-size: 1.1rem;
+  color: var(--orange-soft);
+}
+
+.palette-item {
+  border-color: var(--border-strong);
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.palette-item:hover {
+  border-color: var(--orange);
+  box-shadow: 0 0 10px var(--orange-glow);
+}
+
+.module-node-header {
+  border-bottom-color: var(--orange);
+  color: var(--orange-soft);
+}
+
+.config-form input:focus,
+.config-form select:focus,
+.modal-form input:focus {
+  outline: none;
+  border-color: var(--orange);
+  box-shadow: 0 0 6px var(--orange-glow);
+}
+
+.modal {
+  box-shadow: 0 0 30px rgb(255 138 31 / 25%);
+}
+
+.canvas {
+  position: relative;
+  background-color: var(--bg);
+}
+
+/* Subtle cobweb in the top-right corner of the canvas. */
+.canvas::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 5;
+  width: 180px;
+  height: 180px;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%23b48cff' stroke-width='0.6'%3E%3Cpath d='M100 0 0 0M100 0 80 100M100 0 100 100M100 0 40 80M100 0 10 40M100 0 0 15'/%3E%3Cpath d='M82 0Q86 14 100 18M62 0Q70 28 100 36M42 0Q54 42 100 58M22 0Q40 56 100 80'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.react-flow {
+  --xy-background-color: var(--bg);
+  --xy-background-pattern-dots-color: #2b2042;
+  --xy-edge-stroke: var(--border-strong);
+  --xy-edge-stroke-selected: var(--orange);
+  --xy-connectionline-stroke: var(--orange);
+  --xy-handle-background-color: var(--orange);
 }

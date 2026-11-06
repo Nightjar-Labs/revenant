@@ -1,0 +1,55 @@
+{
+  "nodes": [
+    {
+      "id": "summon-hn",
+      "type": "fetch-feed",
+      "config": { "url": "https://news.ycombinator.com/rss" },
+      "position": { "x": 0, "y": 80 }
+    },
+    {
+      "id": "banish-not-rust",
+      "type": "filter",
+      "config": {
+        "mode": "all",
+        "rules": [{ "field": "title", "op": "contains", "value": "Rust" }]
+      },
+      "position": { "x": 300, "y": 80 }
+    },
+    {
+      "id": "arrange-newest-first",
+      "type": "sort",
+      "config": { "field": "date", "order": "desc" },
+      "position": { "x": 600, "y": 80 }
+    },
+    {
+      "id": "raise-output",
+      "type": "output",
+      "config": {},
+      "position": { "x": 900, "y": 80 }
+    }
+  ],
+  "edges": [
+    {
+      "source": "summon-hn",
+      "sourcePort": "out",
+      "target": "banish-not-rust",
+      "targetPort": "items"
+    },
+    {
+      "source": "banish-not-rust",
+      "sourcePort": "out",
+      "target": "arrange-newest-first",
+      "targetPort": "items"
+    },
+    {
+      "source": "arrange-newest-first",
+      "sourcePort": "out",
+      "target": "raise-output",
+      "targetPort": "items"
+    }
+  ],
+  "meta": {
+    "id": "hacker-news-rust-only",
+    "name": "Hacker News — Rust Only"
+  }
+}
