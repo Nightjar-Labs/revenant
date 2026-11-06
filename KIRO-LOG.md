@@ -32,9 +32,13 @@ Honest record of what **Kiro** produced vs. what a human/Claude edited. Rule fol
 | 18 | 2026-11-06 22:50 | claude-sonnet-5.5 (V3, spec mode) | **build task 5**: operators group 1 (Filter, Sort, Unique, Reverse) | not printed | 20.97 → 28.08 |
 | 19 | 2026-11-06 22:53 | claude-sonnet-5.5 (V3, spec mode) | **build task 6**: operators group 2 (Union, Regex, Rename, Truncate) | not printed | 28.08 → 33.31 |
 | 20 | 2026-11-06 22:56 | claude-sonnet-5.5 (V3, spec mode) | **build task 7**: output module; 184 tests pass | not printed | 33.31 → 34.98 |
-| 21 | 2026-11-06 23:00 | claude-haiku-5.5 (V3) | **hook fix**: `module-docs-sync` trigger `FileCreate` → `PostFileCreate` (V3 id; the old value never fired during tasks 5–7) | not printed | 34.98 → see #22 "before" |
+| 21 | 2026-11-06 23:00 | claude-haiku-5.5 (V3) | **hook fix**: `module-docs-sync` trigger `FileCreate` → `PostFileCreate` (V3 id; the old value never fired during tasks 5–7) | not printed | 34.98 → 35.02 |
+| 22 | 2026-11-06 23:02 | claude-sonnet-5.5 (V3, spec mode) | **build task 8**: fetch-feed and fetch-json sources (`module-docs-sync` fired, wrote `docs/module-reference.md`) | not printed | 35.02 → 45.74 |
+| 23 | 2026-11-06 23:06 | claude-sonnet-5.5 (V3, spec mode) | **build task 9**: RSS 2.0, Atom, JSON Feed serializers | not printed | 45.74 → 51.68 |
+| 24 | 2026-11-06 23:10 | claude-sonnet-5.5 (V3, spec mode) | **build task 10**: SSRF-safe fetcher (all DNS answers validated, pinned IPs, manual redirects, size/time caps); 260 tests | not printed | 51.68 → 56.63 |
+| 25 | 2026-11-06 23:16 | claude-sonnet-5.5 (V3) | **security follow-up** (prompt by Claude after review): block IPv4-compatible, NAT64, 6to4, Teredo and reserved IPv4 ranges, one test per range; 343 tests. Claude re-checked the ranges against `net.BlockList` | not printed | 56.63 → 58.96 |
 
-**Hooks verified running (Nov 6, CLI 3.1.0 V3, `--trust-workspace`):** with `--output-format stream-json`, task 5's event stream holds 10 `hook_update` events (`test-on-save`, `runCommand`, `completed`), and tasks 5–7 hold 22 in total. `module-docs-sync` had never fired (wrong trigger id, see #21). Run logs: `.kiro-runs/tNN.jsonl` (gitignored).
+**Hooks verified running (Nov 6, CLI 3.1.0 V3, `--trust-workspace`):** with `--output-format stream-json`, task 5's event stream holds 10 `hook_update` events (`test-on-save`, `runCommand`, `completed`), and tasks 5–7 hold 22 in total. After #21, tasks 8–10 show `module-docs-sync` (`askAgent`) 4× and `test-on-save` 21×. Run logs: `.kiro-runs/tNN.jsonl` (gitignored).
 
 **Total after #10: 12.02 of 50 per `/usage`.** #11–#12 (Nov 6, environment probes for CLI 3.1.0, no repo files changed) cost 0.37, so **12.39 of 50** (Kiro Free, resets 2026-12-01). 17.6 credits remain under the 30-credit budget. `/usage` probes through the V2 engine cost no credits; through V3 `--no-interactive` they do.
 

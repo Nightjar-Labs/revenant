@@ -132,6 +132,92 @@ describe('SSRFFetcher', () => {
     },
   );
 
+  // Regression: ::ffff:0:0/96 is not in the IPv6 blocklist; BlockList matches mapped
+  // addresses against the IPv4 rules, in both dotted and hex notation.
+  it.each([
+    ['::ffff:127.0.0.1', 'loopback, dotted'],
+    ['::ffff:7f00:1', 'loopback, hex'],
+    ['::ffff:c0a8:101', 'RFC 1918, hex'],
+    ['::ffff:a9fe:a9fe', 'metadata, hex'],
+    ['::ffff:192.0.2.1', 'newly blocked reserved range'],
+    ['::ffff:240.0.0.1', 'newly blocked reserved range'],
+  ])('regression: blocks IPv4-mapped %s (%s) without connecting', async (ip) => {
+    dnsReturns(ip);
+    await expect(new SSRFFetcher().fetch('http://mapped.example/')).rejects.toThrow(
+      'SSRF attempt detected',
+    );
+    expect(requestMock).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['192.0.0.1', '192.0.0.0/24'],
+    ['192.0.0.255', '192.0.0.0/24'],
+    ['192.0.2.1', '192.0.2.0/24'],
+    ['198.18.0.1', '198.18.0.0/15'],
+    ['198.19.255.254', '198.18.0.0/15'],
+    ['198.51.100.7', '198.51.100.0/24'],
+    ['203.0.113.9', '203.0.113.0/24'],
+    ['240.0.0.1', '240.0.0.0/4'],
+    ['250.1.2.3', '240.0.0.0/4'],
+    ['255.255.255.255', 'broadcast'],
+  ])('blocks reserved IPv4 %s (%s) before connecting', async (ip) => {
+    dnsReturns(ip);
+    await expect(new SSRFFetcher().fetch('http://reserved.example/')).rejects.toThrow(
+      'SSRF attempt detected',
+    );
+    expect(requestMock).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['::127.0.0.1', 'IPv4-compatible, dotted'],
+    ['::7f00:1', 'IPv4-compatible, hex'],
+    ['::a00:1', 'IPv4-compatible, 10.0.0.1'],
+    ['::808:808', 'IPv4-compatible, public IPv4'],
+    ['64:ff9b::7f00:1', 'NAT64 -> 127.0.0.1'],
+    ['64:ff9b::808:808', 'NAT64 -> public IPv4'],
+    ['64:ff9b:1::7f00:1', 'local-use NAT64'],
+    ['64:ff9b:1:ffff::1', 'local-use NAT64, end of /48'],
+    ['2002:7f00:1::', '6to4 -> 127.0.0.1'],
+    ['2002:808:808::1', '6to4 -> public IPv4'],
+    ['2001::1', 'Teredo'],
+    ['2001:0:4136:e378:8000:63bf:3fff:fdd2', 'Teredo, full form'],
+  ])('blocks IPv6 transition address %s (%s) before connecting', async (ip) => {
+    dnsReturns(ip);
+    await expect(new SSRFFetcher().fetch('http://transition.example/')).rejects.toThrow(
+      'SSRF attempt detected',
+    );
+    expect(requestMock).not.toHaveBeenCalled();
+  });
+
+  it.each(['http://[::127.0.0.1]/', 'http://[64:ff9b::7f00:1]/', 'http://[2002:7f00:1::]/'])(
+    'blocks IPv6 transition literal %s without a DNS lookup or connection',
+    async (url) => {
+      await expect(new SSRFFetcher().fetch(url)).rejects.toThrow('SSRF attempt detected');
+      expect(lookupMock).not.toHaveBeenCalled();
+      expect(requestMock).not.toHaveBeenCalled();
+    },
+  );
+
+  it('blocks a redirect to a NAT64 address before connecting to it', async () => {
+    dnsReturns(PUBLIC_IP);
+    requestMock.mockResolvedValueOnce(respond(302, '', { location: 'http://[64:ff9b::7f00:1]/' }));
+    await expect(new SSRFFetcher().fetch('http://good.example/')).rejects.toThrow(
+      'SSRF attempt detected',
+    );
+    expect(requestMock).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['2606:4700:4700::1111', '2001:4860:4860::8888', '2a00:1450:4001:81b::200e'])(
+    'still allows public IPv6 address %s',
+    async (ip) => {
+      dnsReturns(ip);
+      requestMock.mockResolvedValue(respond(200, 'ok'));
+      await expect(new SSRFFetcher().fetch('http://v6-public.example/')).resolves.toMatchObject({
+        status: 200,
+      });
+    },
+  );
+
   it('allows an IPv4-mapped IPv6 address that maps to a public IPv4', async () => {
     dnsReturns('::ffff:5db8:d822'); // 93.184.216.34
     requestMock.mockResolvedValue(respond(200, 'ok'));

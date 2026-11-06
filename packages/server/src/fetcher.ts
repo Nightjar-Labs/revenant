@@ -56,6 +56,24 @@ export class SSRFFetcher implements Fetcher {
     // Multicast
     b.addSubnet('224.0.0.0', 4, 'ipv4');
     b.addSubnet('ff00::', 8, 'ipv6');
+    // Reserved / documentation / benchmarking IPv4 ranges
+    b.addSubnet('192.0.0.0', 24, 'ipv4'); // IETF protocol assignments
+    b.addSubnet('192.0.2.0', 24, 'ipv4'); // TEST-NET-1
+    b.addSubnet('198.18.0.0', 15, 'ipv4'); // benchmarking
+    b.addSubnet('198.51.100.0', 24, 'ipv4'); // TEST-NET-2
+    b.addSubnet('203.0.113.0', 24, 'ipv4'); // TEST-NET-3
+    b.addSubnet('240.0.0.0', 4, 'ipv4'); // reserved (future use)
+    b.addAddress('255.255.255.255', 'ipv4'); // limited broadcast (also inside 240.0.0.0/4)
+    // IPv6 transition mechanisms that embed an IPv4 address. A public feed fetcher
+    // never needs them, and they can reach internal IPv4 hosts (e.g. 64:ff9b::7f00:1
+    // via a NAT64 gateway), so they are blocked outright rather than unwrapped.
+    // IPv4-mapped ::ffff:0:0/96 is deliberately NOT listed: BlockList matches those
+    // against the IPv4 rules above, so public mapped addresses stay reachable.
+    b.addSubnet('::', 96, 'ipv6'); // IPv4-compatible (deprecated), ::a.b.c.d
+    b.addSubnet('64:ff9b::', 96, 'ipv6'); // NAT64 well-known prefix (RFC 6052)
+    b.addSubnet('64:ff9b:1::', 48, 'ipv6'); // local-use NAT64 (RFC 8215)
+    b.addSubnet('2002::', 16, 'ipv6'); // 6to4 (RFC 3056)
+    b.addSubnet('2001::', 32, 'ipv6'); // Teredo (RFC 4380)
   }
 
   async fetch(url: string): Promise<FetchResult> {
