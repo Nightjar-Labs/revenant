@@ -29,6 +29,12 @@ Honest record of what **Kiro** produced vs. what a human/Claude edited. Rule fol
 | 15 | 2026-11-06 22:38 | claude-sonnet-5.5 (V3, spec mode) | **build task 2**: engine core types and Item model | not printed | 2.64 → 8.10 |
 | 16 | 2026-11-06 22:41 | claude-sonnet-5.5 (V3, spec mode) | **build task 3**: module registry, DAG validator, topological sort | not printed | 8.10 → 14.26 |
 | 17 | 2026-11-06 22:44 | claude-sonnet-5.5 (V3, spec mode) | **build task 4**: pipeline runner (error isolation, timeout, output cap); 93 tests pass | not printed | 14.26 → 20.97 |
+| 18 | 2026-11-06 22:50 | claude-sonnet-5.5 (V3, spec mode) | **build task 5**: operators group 1 (Filter, Sort, Unique, Reverse) | not printed | 20.97 → 28.08 |
+| 19 | 2026-11-06 22:53 | claude-sonnet-5.5 (V3, spec mode) | **build task 6**: operators group 2 (Union, Regex, Rename, Truncate) | not printed | 28.08 → 33.31 |
+| 20 | 2026-11-06 22:56 | claude-sonnet-5.5 (V3, spec mode) | **build task 7**: output module; 184 tests pass | not printed | 33.31 → 34.98 |
+| 21 | 2026-11-06 23:00 | claude-haiku-5.5 (V3) | **hook fix**: `module-docs-sync` trigger `FileCreate` → `PostFileCreate` (V3 id; the old value never fired during tasks 5–7) | not printed | 34.98 → see #22 "before" |
+
+**Hooks verified running (Nov 6, CLI 3.1.0 V3, `--trust-workspace`):** with `--output-format stream-json`, task 5's event stream holds 10 `hook_update` events (`test-on-save`, `runCommand`, `completed`), and tasks 5–7 hold 22 in total. `module-docs-sync` had never fired (wrong trigger id, see #21). Run logs: `.kiro-runs/tNN.jsonl` (gitignored).
 
 **Total after #10: 12.02 of 50 per `/usage`.** #11–#12 (Nov 6, environment probes for CLI 3.1.0, no repo files changed) cost 0.37, so **12.39 of 50** (Kiro Free, resets 2026-12-01). 17.6 credits remain under the 30-credit budget. `/usage` probes through the V2 engine cost no credits; through V3 `--no-interactive` they do.
 

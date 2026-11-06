@@ -4,7 +4,7 @@
     {
       "name": "module-docs-sync",
       "description": "Update documentation and create test skeleton when new engine modules are added",
-      "trigger": "FileCreate",
+      "trigger": "PostFileCreate",
       "matcher": "(^|/)packages/engine/src/modules/[^/]+\\.ts$",
       "action": {
         "type": "agent",
