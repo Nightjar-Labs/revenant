@@ -10,7 +10,7 @@
   - Set up `npm run dev`, `npm run test`, `npm run lint`, `npm run build` scripts in root `package.json`
   - _Requirements: 1, 2, 3, 11_
 
-- [ ] 2. Engine core types and Item model
+- [x] 2. Engine core types and Item model
   - Define `Item` interface with required fields (`title`, `link`, `guid`, `date`) and optional fields (`content`, `extra`)
   - Create `ItemSchema` Zod schema with validation and coercion rules
   - Implement `deriveGuid` function: use source's `guid` if present, else `link`, else `sha1(title + date)`
@@ -21,9 +21,9 @@
   - _Requirements: 1.1, 3.1, 3.2, 3.3, 3.4_
   - _Properties: 8 (types support deterministic execution)_
 
-- [ ] 3. Module registry, DAG validator, and topological sort
-  - 3.1. Implement module registry as `Map<string, ModuleDefinition>` with registration function
-  - 3.2. Implement DAG validator in `packages/engine/src/dag/validator.ts`:
+- [x] 3. Module registry, DAG validator, and topological sort
+  - [x] 3.1. Implement module registry as `Map<string, ModuleDefinition>` with registration function
+  - [x] 3.2. Implement DAG validator in `packages/engine/src/dag/validator.ts`:
     - Validate JSON structure against `PipelineGraphSchema`
     - Check all node types exist in registry (error: "Unknown module type: <type>")
     - Validate each node's `config` against its module's `configSchema`
@@ -32,20 +32,20 @@
     - Validate port names: `sourcePort` exists in source node's `outputPorts`, `targetPort` in target's `inputPorts`
     - Reject multiple edges to the same non-union input port
     - Return typed `PipelineGraph` or `ValidationError[]`
-  - 3.3. Implement topological sort using Kahn's algorithm in `packages/engine/src/dag/sort.ts`
-  - 3.4. Write unit tests for validator:
+  - [x] 3.3. Implement topological sort using Kahn's algorithm in `packages/engine/src/dag/sort.ts`
+  - [x] 3.4. Write unit tests for validator:
     - Valid graphs (linear, fan-out, fan-in)
     - Cyclic graphs (self-loop, A→B→A, A→B→C→A) — assert error message includes cycle path
     - Zero output nodes, multiple output nodes
     - Invalid port connections (non-existent ports)
     - Unknown module type
     - Multiple edges to same input port (non-union)
-  - 3.5. Write unit tests for topological sort with various valid graph structures
+  - [x] 3.5. Write unit tests for topological sort with various valid graph structures
   - _Requirements: 1.2, 1.3, 1.4_
   - _Properties: 11 (cycle detection), 12 (unique output), 13 (port existence), 21 (node count limit — implement in validator with max 20 nodes check)_
 
-- [ ] 4. Pipeline runner with error isolation, timeout, and output cap
-  - 4.1. Implement `run` function in `packages/engine/src/runner/run.ts`:
+- [x] 4. Pipeline runner with error isolation, timeout, and output cap
+  - [x] 4.1. Implement `run` function in `packages/engine/src/runner/run.ts`:
     - Accept `PipelineGraph`, `ExecutionDeps` with injected `Fetcher`, `Clock`, `registry`, and optional `AbortSignal`
     - Compute topological sort
     - Initialize `nodeResults` map
@@ -57,12 +57,12 @@
       - Continue execution of downstream nodes with available inputs
     - Cap output node items at 500 (log warning if truncated)
     - Return `PipelineRunResult` with `success`, `nodeResults`, `outputItems`
-  - 4.2. Write unit tests:
+  - [x] 4.2. Write unit tests:
     - Linear pipeline with all nodes succeeding
     - Pipeline with mid-graph failure — assert error isolated, downstream continues if inputs available
     - Pipeline with source failure — assert error propagates to all dependent nodes
     - Pipeline with output truncation (501 items → 500 in `outputItems`)
-  - 4.3. Write runner integration test using in-test stub `ModuleDefinition`s:
+  - [x] 4.3. Write runner integration test using in-test stub `ModuleDefinition`s:
     - Define three minimal stub modules inside the test file and register them in a local registry (do **not** import real operator modules):
       - `source-stub`: no config, zero input ports, one output port `out`; `execute` returns a fixed array of 3 `Item` objects
       - `passthrough-stub`: no config, one input port `items`, one output port `out`; `execute` returns inputs unchanged
