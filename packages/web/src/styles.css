@@ -1,0 +1,398 @@
+:root {
+  color-scheme: dark;
+  font-family: system-ui, sans-serif;
+  background: #14111a;
+  color: #e8e4f0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 240px 1fr 300px;
+  grid-template-rows: auto 1fr 240px;
+  grid-template-areas:
+    'toolbar toolbar toolbar'
+    'sidebar canvas config'
+    'inspector inspector inspector';
+  height: 100%;
+}
+
+.pane {
+  overflow: auto;
+  padding: 0.75rem;
+  box-sizing: border-box;
+}
+
+.pane h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.pane h3 {
+  margin: 1rem 0 0.25rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #9a90b0;
+}
+
+.sidebar {
+  grid-area: sidebar;
+  border-right: 1px solid #2c2638;
+}
+
+.canvas {
+  grid-area: canvas;
+  padding: 0;
+}
+
+.config-panel {
+  grid-area: config;
+  border-left: 1px solid #2c2638;
+}
+
+.ghost-inspector {
+  grid-area: inspector;
+  border-top: 1px solid #2c2638;
+}
+
+.palette-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.palette-item {
+  margin: 0.25rem 0;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #2c2638;
+  border-radius: 4px;
+  background: #1d1826;
+}
+
+.muted {
+  color: #9a90b0;
+}
+
+.error {
+  color: #ff7a7a;
+}
+
+.palette-item[draggable='true'] {
+  cursor: grab;
+}
+
+.module-node {
+  min-width: 140px;
+  border: 1px solid #4a3f66;
+  border-radius: 6px;
+  background: #1d1826;
+  color: #e8e4f0;
+  font-size: 0.8rem;
+}
+
+.module-node.selected {
+  border-color: #b48cff;
+  box-shadow: 0 0 0 2px rgba(180, 140, 255, 0.35);
+}
+
+.module-node-header {
+  padding: 0.35rem 0.6rem;
+  border-bottom: 1px solid #2c2638;
+  font-weight: 600;
+}
+
+.module-node-ports {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.25rem 0;
+}
+
+.module-port {
+  position: relative;
+  padding: 0.15rem 0.6rem;
+  color: #9a90b0;
+}
+
+.module-port-out {
+  text-align: right;
+}
+
+.config-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.config-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.8rem;
+}
+
+.config-field-inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.config-label {
+  color: #9a90b0;
+}
+
+.config-form input[type='text'],
+.config-form input[type='url'],
+.config-form input[type='number'],
+.config-form select {
+  padding: 0.3rem 0.4rem;
+  border: 1px solid #4a3f66;
+  border-radius: 4px;
+  background: #1d1826;
+  color: inherit;
+  font: inherit;
+}
+
+.config-group {
+  margin: 0;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid #2c2638;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.config-group legend {
+  padding: 0 0.25rem;
+  font-size: 0.8rem;
+  color: #9a90b0;
+}
+
+.config-array-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed #2c2638;
+}
+
+.config-array-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.config-form button {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid #4a3f66;
+  border-radius: 4px;
+  background: #1d1826;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.connection-tooltip {
+  position: fixed;
+  z-index: 10;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background: #5a1f2b;
+  color: #ffd6dc;
+  font-size: 0.8rem;
+  pointer-events: none;
+  transform: translate(8px, 8px);
+}
+
+.toolbar {
+  grid-area: toolbar;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid #2c2638;
+}
+
+.toolbar button {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid #4a3f66;
+  border-radius: 4px;
+  background: #1d1826;
+  color: inherit;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.toolbar button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.toolbar-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.error-banner {
+  margin-bottom: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #a33a4a;
+  border-radius: 4px;
+  background: #5a1f2b;
+  color: #ffd6dc;
+  font-size: 0.85rem;
+}
+
+.inspector-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.inspector-table th,
+.inspector-table td {
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid #2c2638;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.inspector-table a {
+  color: #b48cff;
+}
+
+.module-node {
+  position: relative;
+}
+
+.module-node.has-error {
+  border-color: #ff7a7a;
+}
+
+.module-node-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #d13b4f;
+  color: #fff;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+}
+
+.toolbar-pipe {
+  margin-left: auto;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 60%);
+}
+
+.modal {
+  width: min(420px, 90vw);
+  max-height: 80vh;
+  overflow: auto;
+  padding: 1rem;
+  border: 1px solid #4a3f66;
+  border-radius: 6px;
+  background: #15111c;
+}
+
+.modal h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.modal-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.modal-form input {
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #4a3f66;
+  border-radius: 4px;
+  background: #1d1826;
+  color: inherit;
+  font: inherit;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.pipe-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pipe-list button {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.3rem;
+  text-align: left;
+}
+
+.pipe-id {
+  opacity: 0.6;
+  font-family: monospace;
+}
+
+.toast {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 200;
+  max-width: 420px;
+  padding: 0.6rem 0.9rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.toast-success {
+  background: #1f3d2a;
+  border: 1px solid #3f8f5a;
+}
+
+.toast-error {
+  background: #4a1f28;
+  border: 1px solid #d13b4f;
+}

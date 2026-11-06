@@ -14,6 +14,7 @@ inclusion: always
 | HTTP server | Hono + @hono/node-server (Node adapter) |
 | UI framework | React 19 + Vite |
 | Canvas | @xyflow/react |
+| Client state (web) | zustand |
 | Schema validation | Zod (pipeline schema, operator config) |
 | Feed parsing | fast-xml-parser |
 | JSON queries | jsonpath-plus |

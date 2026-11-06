@@ -41,6 +41,13 @@ Honest record of what **Kiro** produced vs. what a human/Claude edited. Rule fol
 | 27 | 2026-11-06 23:17 | claude-sonnet-5.5 (V3, spec mode) | **build task 12**: API routes (CRUD, preview) | not printed | 62.42 → 68.60 |
 | 28 | 2026-11-06 23:20 | claude-sonnet-5.5 (V3, spec mode) | **build task 13**: Haunting endpoints (ETag, TTL cache, single-flight) | not printed | 68.60 → 77.55 |
 | 29 | 2026-11-06 23:25 | claude-sonnet-5.5 (V3, spec mode) | **build task 14**: engine end-to-end fixture test; 420 tests | not printed | 77.55 → 83.56 |
+| 30 | 2026-11-06 23:31 | claude-sonnet-5.5 (V3, spec mode) | **build task 15**: web scaffold (Vite, React 19, @xyflow/react) | not printed | 83.56 → 86.56 |
+| 31 | 2026-11-06 23:33 | claude-sonnet-5.5 (V3, spec mode) | **build task 16**: module palette and canvas with drag-and-drop | not printed | 86.56 → 91.86 |
+| 32 | 2026-11-06 23:36 | claude-sonnet-5.5 (V3, spec mode) | **build task 17**: config panel per module type | not printed | 91.86 → 98.88 |
+| 33 | 2026-11-06 23:40 | claude-sonnet-5.5 (V3, spec mode) | **build task 18**: Ghost Inspector (per-node item preview) | not printed | 98.88 → 107.27 |
+| 34 | 2026-11-06 23:44 | claude-sonnet-5.5 (V3, spec mode) | **build task 19**: save, load, pipe list; 504 tests | not printed | 107.27 → 112.90 |
+
+**Claude's smoke checks (no Kiro credits):** after task 14, built server on a port: health, modules, live Hacker News preview through fetch → truncate → output, save/list/delete, `/h/<id>.xml` 200 with 5 well-formed RSS items, ETag revalidation 304, `.atom` and `.json` 200, metadata-IP fetch refused with the SSRF error. After task 19, built web app (vite preview) in headless Chromium: palette drag-and-drop, handle-to-handle edges, URL and limit config, Run Preview, Ghost Inspector showing the 5 live items, Save (name dialog) → New → Load restores 3 nodes and 2 edges. Found: the editor never shows the Haunting URL, and the first drop zooms the canvas to 2× so new nodes overlap (sent to Kiro as a follow-up).
 
 **Hooks verified running (Nov 6, CLI 3.1.0 V3, `--trust-workspace`):** with `--output-format stream-json`, task 5's event stream holds 10 `hook_update` events (`test-on-save`, `runCommand`, `completed`), and tasks 5–7 hold 22 in total. After #21, tasks 8–10 show `module-docs-sync` (`askAgent`) 4× and `test-on-save` 21×. Run logs: `.kiro-runs/tNN.jsonl` (gitignored).
 

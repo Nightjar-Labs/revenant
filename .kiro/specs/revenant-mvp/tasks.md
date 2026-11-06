@@ -338,23 +338,23 @@
   - _Requirements: 11.3_
   - _Properties: 8 (deterministic), 14 (RSS round-trip), 15 (Atom), 16 (JSON Feed)_
 
-- [ ] 15. Web scaffold: Vite + React 19 + @xyflow/react
-  - 15.1. Initialize Vite app in `packages/web/` with React 19 and TypeScript
-  - 15.2. Install `@xyflow/react`, `zustand` (or similar state library), `react-router-dom` (if multi-page), CSS framework (or Tailwind)
-  - 15.3. Set up dev server with proxy to `http://localhost:3000` (Hono server) for `/api/*` and `/h/*` routes
-  - 15.4. Create basic App component with four-pane layout:
+- [x] 15. Web scaffold: Vite + React 19 + @xyflow/react
+  - [x] 15.1. Initialize Vite app in `packages/web/` with React 19 and TypeScript
+  - [x] 15.2. Install `@xyflow/react`, `zustand` (or similar state library), `react-router-dom` (if multi-page), CSS framework (or Tailwind)
+  - [x] 15.3. Set up dev server with proxy to `http://localhost:3000` (Hono server) for `/api/*` and `/h/*` routes
+  - [x] 15.4. Create basic App component with four-pane layout:
     - Left sidebar (Palette)
     - Center canvas (@xyflow/react)
     - Right sidebar (ConfigPanel)
     - Bottom pane (GhostInspector)
-  - 15.5. Fetch module registry from `GET /api/modules` on app load and store in Zustand state
+  - [x] 15.5. Fetch module registry from `GET /api/modules` on app load and store in Zustand state
   - _Requirements: 10 (UI structure)_
 
-- [ ] 16. Module palette and canvas with drag-and-drop
-  - 16.1. Implement `Sidebar` component in `packages/web/src/components/Sidebar.tsx`:
+- [x] 16. Module palette and canvas with drag-and-drop
+  - [x] 16.1. Implement `Sidebar` component in `packages/web/src/components/Sidebar.tsx`:
     - Group modules by category (Sources, Operators, Output)
     - Render each module as draggable item with themed label and plain name in parentheses (e.g., "Banish (Filter)")
-  - 16.2. Implement `Canvas` component in `packages/web/src/components/Canvas.tsx`:
+  - [x] 16.2. Implement `Canvas` component in `packages/web/src/components/Canvas.tsx`:
     - Use `<ReactFlow>` with `nodes`, `edges`, `onNodesChange`, `onEdgesChange`, `onConnect` from Zustand store
     - Implement custom node types rendering input/output ports labeled by port name
     - On drag from palette onto canvas:
@@ -368,50 +368,50 @@
     - On node click:
       - Set `selectedNode` in store
       - Trigger config panel update
-  - 16.3. Implement custom node component rendering themed + plain labels (e.g., node header shows "Banish (Filter)")
+  - [x] 16.3. Implement custom node component rendering themed + plain labels (e.g., node header shows "Banish (Filter)")
   - _Requirements: 10.1, 10.2, 10.3_
 
-- [ ] 17. Config panel per module type
-  - 17.1. Implement `ConfigPanel` component in `packages/web/src/components/ConfigPanel.tsx`:
+- [x] 17. Config panel per module type
+  - [x] 17.1. Implement `ConfigPanel` component in `packages/web/src/components/ConfigPanel.tsx`:
     - Read `selectedNode` from store
     - If no node selected, show placeholder "Select a node to configure"
     - If node selected, render dynamic form based on module's `configSchema` (from module registry)
-  - 17.2. Implement form generator from JSON Schema (converted from Zod):
+  - [x] 17.2. Implement form generator from JSON Schema (converted from Zod):
     - String fields → text input
     - Enum fields → dropdown or radio buttons
     - Array fields (e.g., filter rules) → dynamic list with add/remove buttons
     - Nested objects → grouped fieldsets
-  - 17.3. On config change, update `nodes[selectedNode.id].config` in store
-  - 17.4. For fetch-feed and fetch-json, render URL input field
-  - 17.5. For filter, render rule builder with field/op/value rows
+  - [x] 17.3. On config change, update `nodes[selectedNode.id].config` in store
+  - [x] 17.4. For fetch-feed and fetch-json, render URL input field
+  - [x] 17.5. For filter, render rule builder with field/op/value rows
   - _Requirements: 10.1 (config panel per node type)_
 
-- [ ] 18. Ghost Inspector with per-node item preview
-  - 18.1. Implement `GhostInspector` component in `packages/web/src/components/GhostInspector.tsx`:
+- [x] 18. Ghost Inspector with per-node item preview
+  - [x] 18.1. Implement `GhostInspector` component in `packages/web/src/components/GhostInspector.tsx`:
     - Read `selectedNode` and `nodeResults` from store
     - If no node selected, show placeholder "Select a node to inspect"
     - If node selected, show `nodeResults[selectedNode.id].items` in a table with columns: Title, Link, Date
     - If node has error, show error message in red banner above table
     - Limit table to first 20 items (paginate or virtualize if needed for large arrays)
-  - 18.2. Implement "Run Preview" button in toolbar:
+  - [x] 18.2. Implement "Run Preview" button in toolbar:
     - On click, call `POST /api/pipes/preview` with current `nodes` and `edges` from store
     - On response, update `nodeResults` in store
     - If any node has error, render error badge overlay on that node in canvas
-  - 18.3. Implement auto-preview toggle (optional for MVP):
+  - [x] 18.3. Implement auto-preview toggle (optional for MVP):
     - If enabled, debounce 1s after any graph change and auto-call preview endpoint
   - _Requirements: 10.1 (Ghost Inspector shows per-node items), 10.4 (click node → update inspector), 10.5 (run preview, show errors)_
 
-- [ ] 19. Save, load, and pipe list
-  - 19.1. Implement "Save" button in toolbar:
+- [x] 19. Save, load, and pipe list
+  - [x] 19.1. Implement "Save" button in toolbar:
     - If pipeline has no `meta.id`, prompt for pipeline name, generate slug from name
     - Call `POST /api/pipes` (new) or `PUT /api/pipes/:id` (existing) with current `nodes`, `edges`, `meta`
     - On success, show toast "Pipeline saved"
     - On error (422), show validation errors in toast or modal
-  - 19.2. Implement "Load" button in toolbar:
+  - [x] 19.2. Implement "Load" button in toolbar:
     - Fetch `GET /api/pipes`, show modal with list of pipelines (id + name)
     - On select, call `GET /api/pipes/:id`, deserialize into store (replace `nodes` and `edges`)
     - Close modal, render loaded pipeline on canvas
-  - 19.3. Implement "New" button to clear canvas (reset `nodes`, `edges`, `nodeResults`, `selectedNode`)
+  - [x] 19.3. Implement "New" button to clear canvas (reset `nodes`, `edges`, `nodeResults`, `selectedNode`)
   - _Requirements: 10.6 (save), 10.7 (load)_
 
 - [ ] 20. Halloween theme polish and seeded example pipe
