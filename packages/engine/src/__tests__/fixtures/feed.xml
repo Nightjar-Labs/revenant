@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Example Dev Blog</title>
+    <link>https://example.com/</link>
+    <description>Fixture feed for the engine end-to-end test</description>
+    <item>
+      <title>JavaScript Records and Tuples Explained</title>
+      <link>https://example.com/posts/1</link>
+      <guid isPermaLink="false">feed-item-1</guid>
+      <pubDate>Mon, 03 Mar 2025 09:00:00 GMT</pubDate>
+      <description>A first look at immutable data structures.</description>
+    </item>
+    <item>
+      <title>Rust Ownership in Ten Minutes</title>
+      <link>https://example.com/posts/2</link>
+      <guid isPermaLink="false">feed-item-2</guid>
+      <pubDate>Tue, 04 Mar 2025 10:30:00 GMT</pubDate>
+      <description>Borrowing and moving, without the jargon.</description>
+    </item>
+    <item>
+      <title>Why JavaScript &amp; the Event Loop Still Surprise People</title>
+      <link>https://example.com/posts/3</link>
+      <guid isPermaLink="false">feed-item-3</guid>
+      <pubDate>Fri, 07 Mar 2025 08:15:00 GMT</pubDate>
+      <description>Microtasks, macrotasks and &lt;em&gt;ordering&lt;/em&gt;.</description>
+    </item>
+    <item>
+      <title>Postgres Indexing Basics</title>
+      <link>https://example.com/posts/4</link>
+      <guid isPermaLink="false">feed-item-4</guid>
+      <pubDate>Wed, 05 Mar 2025 14:00:00 GMT</pubDate>
+      <description>When a B-tree helps and when it does not.</description>
+    </item>
+    <item>
+      <title>Modern JavaScript Bundlers Compared</title>
+      <link>https://example.com/posts/5</link>
+      <guid isPermaLink="false">feed-item-5</guid>
+      <pubDate>Sun, 09 Mar 2025 18:45:00 GMT</pubDate>
+      <description>Speed, output size and configuration effort.</description>
+    </item>
+    <item>
+      <title>A Gentle Introduction to TypeScript Generics</title>
+      <link>https://example.com/posts/6</link>
+      <guid isPermaLink="false">feed-item-6</guid>
+      <pubDate>Thu, 06 Mar 2025 07:00:00 GMT</pubDate>
+      <description>Constraints, inference and defaults.</description>
+    </item>
+    <item>
+      <title>Sourdough for Programmers</title>
+      <link>https://example.com/posts/7</link>
+      <guid isPermaLink="false">feed-item-7</guid>
+      <pubDate>Sat, 01 Mar 2025 12:00:00 GMT</pubDate>
+      <description>Fermentation is just a long-running process.</description>
+    </item>
+    <item>
+      <title>Testing JavaScript with Vitest</title>
+      <link>https://example.com/posts/8</link>
+      <guid isPermaLink="false">feed-item-8</guid>
+      <pubDate>Tue, 11 Mar 2025 16:20:00 GMT</pubDate>
+      <description>Fast unit tests and property-based checks.</description>
+    </item>
+    <item>
+      <title>Kubernetes Networking Demystified</title>
+      <link>https://example.com/posts/9</link>
+      <guid isPermaLink="false">feed-item-9</guid>
+      <pubDate>Mon, 10 Mar 2025 11:11:00 GMT</pubDate>
+      <description>Services, ingress and the CNI.</description>
+    </item>
+    <item>
+      <title>JavaScript Temporal API Lands</title>
+      <link>https://example.com/posts/10</link>
+      <guid isPermaLink="false">feed-item-10</guid>
+      <pubDate>Wed, 12 Mar 2025 06:30:00 GMT</pubDate>
+      <description>Dates and times that behave.</description>
+    </item>
+  </channel>
+</rss>

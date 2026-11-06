@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "id": "e2e-javascript-news",
+    "name": "JavaScript News"
+  },
+  "nodes": [
+    {
+      "id": "feed",
+      "type": "fetch-feed",
+      "config": { "url": "https://example.com/feed.xml" },
+      "position": { "x": 0, "y": 0 }
+    },
+    {
+      "id": "filter",
+      "type": "filter",
+      "config": {
+        "mode": "all",
+        "rules": [{ "field": "title", "op": "contains", "value": "JavaScript" }]
+      },
+      "position": { "x": 260, "y": 0 }
+    },
+    {
+      "id": "sort",
+      "type": "sort",
+      "config": { "field": "date", "order": "desc" },
+      "position": { "x": 520, "y": 0 }
+    },
+    {
+      "id": "output",
+      "type": "output",
+      "config": {},
+      "position": { "x": 780, "y": 0 }
+    }
+  ],
+  "edges": [
+    { "source": "feed", "sourcePort": "out", "target": "filter", "targetPort": "items" },
+    { "source": "filter", "sourcePort": "out", "target": "sort", "targetPort": "items" },
+    { "source": "sort", "sourcePort": "out", "target": "output", "targetPort": "items" }
+  ]
+}

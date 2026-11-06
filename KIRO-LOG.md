@@ -29,14 +29,18 @@ Honest record of what **Kiro** produced vs. what a human/Claude edited. Rule fol
 | 15 | 2026-11-06 22:38 | claude-sonnet-5.5 (V3, spec mode) | **build task 2**: engine core types and Item model | not printed | 2.64 → 8.10 |
 | 16 | 2026-11-06 22:41 | claude-sonnet-5.5 (V3, spec mode) | **build task 3**: module registry, DAG validator, topological sort | not printed | 8.10 → 14.26 |
 | 17 | 2026-11-06 22:44 | claude-sonnet-5.5 (V3, spec mode) | **build task 4**: pipeline runner (error isolation, timeout, output cap); 93 tests pass | not printed | 14.26 → 20.97 |
-| 18 | 2026-11-06 22:50 | claude-sonnet-5.5 (V3, spec mode) | **build task 5**: operators group 1 (Filter, Sort, Unique, Reverse) | not printed | 20.97 → 28.08 |
+| 18 | 2026-11-06 22:48 | claude-sonnet-5.5 (V3, spec mode) | **build task 5**: operators group 1 (Filter, Sort, Unique, Reverse) | not printed | 20.97 → 28.08 |
 | 19 | 2026-11-06 22:53 | claude-sonnet-5.5 (V3, spec mode) | **build task 6**: operators group 2 (Union, Regex, Rename, Truncate) | not printed | 28.08 → 33.31 |
 | 20 | 2026-11-06 22:56 | claude-sonnet-5.5 (V3, spec mode) | **build task 7**: output module; 184 tests pass | not printed | 33.31 → 34.98 |
-| 21 | 2026-11-06 23:00 | claude-haiku-5.5 (V3) | **hook fix**: `module-docs-sync` trigger `FileCreate` → `PostFileCreate` (V3 id; the old value never fired during tasks 5–7) | not printed | 34.98 → 35.02 |
-| 22 | 2026-11-06 23:02 | claude-sonnet-5.5 (V3, spec mode) | **build task 8**: fetch-feed and fetch-json sources (`module-docs-sync` fired, wrote `docs/module-reference.md`) | not printed | 35.02 → 45.74 |
-| 23 | 2026-11-06 23:06 | claude-sonnet-5.5 (V3, spec mode) | **build task 9**: RSS 2.0, Atom, JSON Feed serializers | not printed | 45.74 → 51.68 |
-| 24 | 2026-11-06 23:10 | claude-sonnet-5.5 (V3, spec mode) | **build task 10**: SSRF-safe fetcher (all DNS answers validated, pinned IPs, manual redirects, size/time caps); 260 tests | not printed | 51.68 → 56.63 |
-| 25 | 2026-11-06 23:16 | claude-sonnet-5.5 (V3) | **security follow-up** (prompt by Claude after review): block IPv4-compatible, NAT64, 6to4, Teredo and reserved IPv4 ranges, one test per range; 343 tests. Claude re-checked the ranges against `net.BlockList` | not printed | 56.63 → 58.96 |
+| 21 | 2026-11-06 22:58 | claude-haiku-5.5 (V3) | **hook fix**: `module-docs-sync` trigger `FileCreate` → `PostFileCreate` (V3 id; the old value never fired during tasks 5–7) | not printed | 34.98 → 35.02 |
+| 22 | 2026-11-06 22:59 | claude-sonnet-5.5 (V3, spec mode) | **build task 8**: fetch-feed and fetch-json sources (`module-docs-sync` fired, wrote `docs/module-reference.md`) | not printed | 35.02 → 45.74 |
+| 23 | 2026-11-06 23:05 | claude-sonnet-5.5 (V3, spec mode) | **build task 9**: RSS 2.0, Atom, JSON Feed serializers | not printed | 45.74 → 51.68 |
+| 24 | 2026-11-06 23:08 | claude-sonnet-5.5 (V3, spec mode) | **build task 10**: SSRF-safe fetcher (all DNS answers validated, pinned IPs, manual redirects, size/time caps); 260 tests | not printed | 51.68 → 56.63 |
+| 25 | 2026-11-06 23:12 | claude-sonnet-5.5 (V3) | **security follow-up** (prompt by Claude after review): block IPv4-compatible, NAT64, 6to4, Teredo and reserved IPv4 ranges, one test per range; 343 tests. Claude re-checked the ranges against `net.BlockList` | not printed | 56.63 → 58.96 |
+| 26 | 2026-11-06 23:14 | claude-sonnet-5.5 (V3, spec mode) | **build task 11**: Hono server scaffold and pipeline storage | not printed | 58.96 → 62.42 |
+| 27 | 2026-11-06 23:17 | claude-sonnet-5.5 (V3, spec mode) | **build task 12**: API routes (CRUD, preview) | not printed | 62.42 → 68.60 |
+| 28 | 2026-11-06 23:20 | claude-sonnet-5.5 (V3, spec mode) | **build task 13**: Haunting endpoints (ETag, TTL cache, single-flight) | not printed | 68.60 → 77.55 |
+| 29 | 2026-11-06 23:25 | claude-sonnet-5.5 (V3, spec mode) | **build task 14**: engine end-to-end fixture test; 420 tests | not printed | 77.55 → 83.56 |
 
 **Hooks verified running (Nov 6, CLI 3.1.0 V3, `--trust-workspace`):** with `--output-format stream-json`, task 5's event stream holds 10 `hook_update` events (`test-on-save`, `runCommand`, `completed`), and tasks 5–7 hold 22 in total. After #21, tasks 8–10 show `module-docs-sync` (`askAgent`) 4× and `test-on-save` 21×. Run logs: `.kiro-runs/tNN.jsonl` (gitignored).
 

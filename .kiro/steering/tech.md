@@ -11,7 +11,7 @@ inclusion: always
 | Language | TypeScript (strict mode, `noUncheckedIndexedAccess`) |
 | Runtime | Node 22 |
 | Package management | npm workspaces monorepo |
-| HTTP server | Hono |
+| HTTP server | Hono + @hono/node-server (Node adapter) |
 | UI framework | React 19 + Vite |
 | Canvas | @xyflow/react |
 | Schema validation | Zod (pipeline schema, operator config) |

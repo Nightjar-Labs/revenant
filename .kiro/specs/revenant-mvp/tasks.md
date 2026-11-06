@@ -229,49 +229,49 @@
 
 - [ ] **Checkpoint — ensure all tests pass for engine + SSRF fetcher**
 
-- [ ] 11. Hono server scaffold and pipeline storage
-  - 11.1. Initialize Hono app in `packages/server/src/index.ts`
-  - 11.2. Implement file-based storage helpers in `packages/server/src/storage.ts`:
+- [x] 11. Hono server scaffold and pipeline storage
+  - [x] 11.1. Initialize Hono app in `packages/server/src/index.ts`
+  - [x] 11.2. Implement file-based storage helpers in `packages/server/src/storage.ts`:
     - `loadPipe(id)` — read `data/pipes/<id>.pipe.json`, parse JSON, validate with engine validator, return `PipelineGraph | null`
     - `savePipe(graph)` — write `data/pipes/<graph.meta.id>.pipe.json` as formatted JSON
     - `listPipes()` — read `data/pipes/` directory, return array of `{ id, name }` from each file's `meta`
     - `deletePipe(id)` — delete `data/pipes/<id>.pipe.json`
-  - 11.3. Create module registry instance in server, import and register all operator definitions from `packages/engine/src/modules/*.ts`
-  - 11.4. Write unit tests for storage helpers (use temp directory):
+  - [x] 11.3. Create module registry instance in server, import and register all operator definitions from `packages/engine/src/modules/*.ts`
+  - [x] 11.4. Write unit tests for storage helpers (use temp directory):
     - `savePipe` writes file, `loadPipe` reads and validates
     - `loadPipe` returns null for non-existent file
     - `listPipes` returns all pipe metadata
   - _Requirements: 1 (pipeline schema validation on load/save), 9.1, 9.2_
 
-- [ ] 12. Hono API routes: CRUD and preview
-  - 12.1. Implement `GET /api/modules`:
+- [x] 12. Hono API routes: CRUD and preview
+  - [x] 12.1. Implement `GET /api/modules`:
     - Return JSON array of all registered modules with `type`, `category`, `themedLabel`, `plainLabel`, `inputPorts`, `outputPorts`, `configSchema` (convert Zod to JSON Schema using `zod-to-json-schema`)
-  - 12.2. Implement `GET /api/pipes`:
+  - [x] 12.2. Implement `GET /api/pipes`:
     - Call `listPipes()`, return JSON array of `{ id, name }`
-  - 12.3. Implement `GET /api/pipes/:id`:
+  - [x] 12.3. Implement `GET /api/pipes/:id`:
     - Call `loadPipe(id)`, return pipeline JSON or 404
-  - 12.4. Implement `POST /api/pipes`:
+  - [x] 12.4. Implement `POST /api/pipes`:
     - Parse request body, validate with engine validator
     - Generate slug `id` from `meta.name` (lowercase, hyphens, unique in `data/pipes/`)
     - Call `savePipe(graph)`, return 201 with created pipeline
     - Return 422 with validation errors if validation fails
-  - 12.5. Implement `PUT /api/pipes/:id`:
+  - [x] 12.5. Implement `PUT /api/pipes/:id`:
     - Parse request body, validate
     - Call `savePipe(graph)` (overwrites existing file)
     - Invalidate Haunting cache for this id (implement cache in task 13)
     - Return 200 with updated pipeline or 422 with errors
-  - 12.6. Implement `DELETE /api/pipes/:id`:
+  - [x] 12.6. Implement `DELETE /api/pipes/:id`:
     - Call `deletePipe(id)`, return 204
-  - 12.7. Implement `POST /api/pipes/:id/run`:
+  - [x] 12.7. Implement `POST /api/pipes/:id/run`:
     - Call `loadPipe(id)`, return 404 if not found
     - Create `AbortSignal.timeout(30_000)` (30s timeout per Req 12.1)
     - Call `run(graph, { fetcher: SSRFFetcher, clock: SystemClock, registry }, signal)`
     - Return 200 with `PipelineRunResult` JSON (includes `nodeResults` for Ghost Inspector)
-  - 12.8. Implement `POST /api/pipes/preview`:
+  - [x] 12.8. Implement `POST /api/pipes/preview`:
     - Parse request body as unsaved pipeline, validate
     - Create `AbortSignal.timeout(30_000)`
     - Call `run(graph, deps, signal)`, return 200 with result or 422 with errors
-  - 12.9. Write route tests (Hono `app.request` helper):
+  - [x] 12.9. Write route tests (Hono `app.request` helper):
     - `GET /api/modules` → returns module list
     - `POST /api/pipes` with valid payload → 201 + file exists in `data/pipes/`
     - `POST /api/pipes` with invalid config → 422
@@ -281,15 +281,15 @@
     - `POST /api/pipes/preview` with fetch error → 200 + `success: false` + error in `nodeResults`
   - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8_
 
-- [ ] 13. Haunting endpoints with ETag, TTL cache, and single-flight
-  - 13.1. Implement cache layer in `packages/server/src/cache.ts`:
+- [x] 13. Haunting endpoints with ETag, TTL cache, and single-flight
+  - [x] 13.1. Implement cache layer in `packages/server/src/cache.ts`:
     - TTL-based LRU cache with max 100 entries (evict least-recently-used when full)
     - Methods: `get(key)`, `set(key, value, { ttl })`, `invalidate(key)`, `clear()`
     - Each cached entry stores `{ etag, body, expiresAt }`
-  - 13.2. Implement single-flight mechanism in `packages/server/src/single-flight.ts`:
+  - [x] 13.2. Implement single-flight mechanism in `packages/server/src/single-flight.ts`:
     - Track in-flight promises in `Map<string, Promise<T>>`
     - Method: `do(key, fn)` — if key exists in map, await existing promise; else create new promise from `fn()`, store in map, await, remove from map on completion, return result
-  - 13.3. Implement `GET /h/:id.xml`, `GET /h/:id.atom`, `GET /h/:id.json` in `packages/server/src/routes.ts`:
+  - [x] 13.3. Implement `GET /h/:id.xml`, `GET /h/:id.atom`, `GET /h/:id.json` in `packages/server/src/routes.ts`:
     - Check `If-None-Match` header; if matches cached etag → return 304 with empty body
     - Check cache for `<id>.<format>` key; if hit and not expired → return cached body + etag header
     - If cache miss or expired, use single-flight to execute pipeline:
@@ -301,7 +301,7 @@
       - Compute etag as SHA-256 hash of serialized body
       - Store in cache with TTL 5 minutes (300_000 ms)
       - Return 200 with serialized body + `ETag` header + appropriate `Content-Type`
-  - 13.4. Write route tests:
+  - [x] 13.4. Write route tests:
     - Valid pipeline + mocked fetcher → 200 + RSS body + ETag header
     - Second request with `If-None-Match: <etag>` → 304
     - Third request after cache expiry (mock time) → 200 + new execution + new ETag
@@ -315,12 +315,12 @@
 
 - [ ] **Checkpoint — ensure all tests pass for server routes and Haunting endpoints**
 
-- [ ] 14. Engine end-to-end fixture test
-  - 14.1. Create fixture pipeline JSON file in `packages/engine/src/__tests__/fixtures/e2e-pipeline.pipe.json`:
+- [x] 14. Engine end-to-end fixture test
+  - [x] 14.1. Create fixture pipeline JSON file in `packages/engine/src/__tests__/fixtures/e2e-pipeline.pipe.json`:
     - Nodes: fetch-feed (mocked RSS response) → filter (title contains "JavaScript") → sort (by date desc) → output
     - Edges: feed→filter→sort→output
-  - 14.2. Create fixture RSS file in `packages/engine/src/__tests__/fixtures/feed.xml` with 10 items (5 contain "JavaScript", 5 do not)
-  - 14.3. Write test in `packages/engine/src/__tests__/e2e.test.ts`:
+  - [x] 14.2. Create fixture RSS file in `packages/engine/src/__tests__/fixtures/feed.xml` with 10 items (5 contain "JavaScript", 5 do not)
+  - [x] 14.3. Write test in `packages/engine/src/__tests__/e2e.test.ts`:
     - Load fixture pipeline, validate
     - Mock fetcher to return fixture RSS
     - Run pipeline
@@ -329,7 +329,7 @@
     - Serialize to RSS, Atom, JSON Feed
     - Parse each serialized output and assert core fields preserved (Properties 14-16)
     - Assert deterministic: run twice with same mocked fetcher, assert `outputItems` arrays deeply equal (Property 8)
-  - 14.4. Write integration test with real operator modules and mocked fetcher (the test that was deferred from task 4.3):
+  - [x] 14.4. Write integration test with real operator modules and mocked fetcher (the test that was deferred from task 4.3):
     - Build a `PipelineGraph` programmatically: fetch-feed → filter (title contains "JavaScript") → output
     - Mock fetcher to return the fixture RSS from `feed.xml`
     - Run pipeline with the full module registry
