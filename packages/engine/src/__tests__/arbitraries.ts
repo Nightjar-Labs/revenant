@@ -18,8 +18,9 @@ export const itemArbitrary: fc.Arbitrary<Item> = fc.record(
     guid: fc.string({ minLength: 1, maxLength: 80 }),
     date: isoDateArbitrary,
     content: fc.string({ maxLength: 200 }),
+    // '__proto__' is excluded: zod's record parsing treats it specially, which breaks round-trip checks.
     extra: fc.dictionary(
-      fc.string({ minLength: 1, maxLength: 10 }),
+      fc.string({ minLength: 1, maxLength: 10 }).filter((key) => key !== '__proto__'),
       fc.oneof(fc.string(), fc.integer(), fc.boolean()),
     ),
   },

@@ -77,8 +77,8 @@
 
 - [ ] **Checkpoint — ensure all tests pass for core engine (types, validator, runner)**
 
-- [ ] 5. Core operators (Group 1: Filter, Sort, Unique, Reverse)
-  - 5.1. Implement `filter` operator in `packages/engine/src/modules/filter.ts`:
+- [x] 5. Core operators (Group 1: Filter, Sort, Unique, Reverse)
+  - [x] 5.1. Implement `filter` operator in `packages/engine/src/modules/filter.ts`:
     - Define `FilterConfigSchema` with `mode` ('all' | 'any') and `rules` array
     - Support ops: `contains`, `notContains`, `equals`, `regex`, `dateBefore`, `dateAfter`
     - Validate regex patterns in config schema (reject at validation time if invalid)
@@ -87,19 +87,19 @@
     - Export `ModuleDefinition` with `type: 'filter'`, `category: 'operators'`, `themedLabel: 'Banish'`, `plainLabel: 'Filter'`
     - Write unit tests: contains, notContains, equals, regex, date ops, mode 'all' vs 'any'
     - Write fast-check property test: every output item is in input (Property 6)
-  - 5.2. Implement `sort` operator in `packages/engine/src/modules/sort.ts`:
+  - [x] 5.2. Implement `sort` operator in `packages/engine/src/modules/sort.ts`:
     - Define `SortConfigSchema` with `field` and `order` ('asc' | 'desc')
     - Implement stable sort (preserve input order for equal keys)
     - Export `ModuleDefinition` with themed/plain labels
     - Write unit tests: ascending/descending, string/date fields
     - Write fast-check property tests: length preserved (Property 5), correctly ordered, stable (Property 4), idempotent for stable inputs
-  - 5.3. Implement `unique` operator in `packages/engine/src/modules/unique.ts`:
+  - [x] 5.3. Implement `unique` operator in `packages/engine/src/modules/unique.ts`:
     - Define `UniqueConfigSchema` with `field` (default 'guid')
     - Keep first occurrence of each distinct value
     - Export `ModuleDefinition`
     - Write unit tests: dedupe by guid, dedupe by title, empty input
     - Write fast-check property tests: idempotent (Property 2), order-preserving subsequence (Property 3)
-  - 5.4. Implement `reverse` operator in `packages/engine/src/modules/reverse.ts`:
+  - [x] 5.4. Implement `reverse` operator in `packages/engine/src/modules/reverse.ts`:
     - No config required
     - Export `ModuleDefinition`
     - Write unit tests: reverse non-empty array, reverse empty array
@@ -107,26 +107,26 @@
   - _Requirements: 6.1, 6.2, 6.4, 6.8_
   - _Properties: 2, 3, 4, 5, 6, 7_
 
-- [ ] 6. Core operators (Group 2: Union, Regex, Rename, Truncate)
-  - 6.1. Implement `union` operator in `packages/engine/src/modules/union.ts`:
+- [x] 6. Core operators (Group 2: Union, Regex, Rename, Truncate)
+  - [x] 6.1. Implement `union` operator in `packages/engine/src/modules/union.ts`:
     - Declare fixed input ports `in1`, `in2`, `in3`, `in4`
     - Concatenate inputs in port order
     - No deduplication
     - Export `ModuleDefinition`
     - Write unit tests: union of two arrays, union with empty arrays, order preservation
     - Write fast-check property test: length sum (Property 1)
-  - 6.2. Implement `regex` operator in `packages/engine/src/modules/regex.ts`:
+  - [x] 6.2. Implement `regex` operator in `packages/engine/src/modules/regex.ts`:
     - Define `RegexConfigSchema` with `field`, `pattern`, `replacement`, `flags` (default 'g')
     - Validate pattern at validation time (reject invalid regex with error message and position)
     - Cap field values at 64 KB before matching
     - Export `ModuleDefinition` with `themedLabel: 'Transmute (Regex)'`, `plainLabel: 'Regex'`
     - Write unit tests: replace in title, replace in content, invalid pattern rejected
-  - 6.3. Implement `rename` operator in `packages/engine/src/modules/rename.ts`:
+  - [x] 6.3. Implement `rename` operator in `packages/engine/src/modules/rename.ts`:
     - Define `RenameConfigSchema` with `map` (object: old field → new field)
     - Rename fields in `extra` only (preserve core fields unless explicitly mapped)
     - Export `ModuleDefinition` with `themedLabel: 'Transmute (Rename)'`, `plainLabel: 'Rename'`
     - Write unit tests: rename custom field in extra, no-op for unmapped fields
-  - 6.4. Implement `truncate` operator in `packages/engine/src/modules/truncate.ts`:
+  - [x] 6.4. Implement `truncate` operator in `packages/engine/src/modules/truncate.ts`:
     - Define `TruncateConfigSchema` with `limit` (integer)
     - Return first `limit` items
     - Export `ModuleDefinition`
@@ -134,8 +134,8 @@
   - _Requirements: 6.3, 6.5, 6.6, 6.7_
   - _Properties: 1_
 
-- [ ] 7. Output module
-  - Implement `output` operator in `packages/engine/src/modules/output.ts`:
+- [x] 7. Output module
+  - [x] Implement `output` operator in `packages/engine/src/modules/output.ts`:
     - No config required (output is the final aggregation point)
     - Single input port `items`, single output port `out` (pass-through)
     - Export `ModuleDefinition` with `type: 'output'`, `category: 'output'`, `themedLabel: 'Raise Output'`, `plainLabel: 'Output'`

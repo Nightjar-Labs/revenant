@@ -26,6 +26,9 @@ Honest record of what **Kiro** produced vs. what a human/Claude edited. Rule fol
 | 13 | 2026-11-06 ~22:25 | auto (CLI 3.1.0, V2) | mistaken probe: `/subscribe` is not a slash command, so V2 also sent it to the model | not printed | 12.39 → 12.51 |
 | — | 2026-11-06 22:3x | — | **Identity switch:** the kiroween-2026 grant (4,000 bonus credits) landed on the owner's *Google* Kiro identity (same email, separate Kiro account). CLI logged out of the GitHub identity and into Google (owner approved in his own browser). Rows #1–#13 were billed to the GitHub identity's free plan; from #14 on, the Google identity's bonus credits | — | Google: 0.00/4000 |
 | 14 | 2026-11-06 22:35 | claude-sonnet-5.5 (V3, spec mode) | **build task 1**: workspace scaffold (npm workspaces, strict TS, Vitest maxWorkers 2, ESLint/Prettier, engine/server/web packages) | not printed | 0.00 → 2.64 (bonus) |
+| 15 | 2026-11-06 22:38 | claude-sonnet-5.5 (V3, spec mode) | **build task 2**: engine core types and Item model | not printed | 2.64 → 8.10 |
+| 16 | 2026-11-06 22:41 | claude-sonnet-5.5 (V3, spec mode) | **build task 3**: module registry, DAG validator, topological sort | not printed | 8.10 → 14.26 |
+| 17 | 2026-11-06 22:44 | claude-sonnet-5.5 (V3, spec mode) | **build task 4**: pipeline runner (error isolation, timeout, output cap); 93 tests pass | not printed | 14.26 → 20.97 |
 
 **Total after #10: 12.02 of 50 per `/usage`.** #11–#12 (Nov 6, environment probes for CLI 3.1.0, no repo files changed) cost 0.37, so **12.39 of 50** (Kiro Free, resets 2026-12-01). 17.6 credits remain under the 30-credit budget. `/usage` probes through the V2 engine cost no credits; through V3 `--no-interactive` they do.
 
