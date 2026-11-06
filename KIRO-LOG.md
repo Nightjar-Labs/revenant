@@ -21,8 +21,10 @@ Honest record of what **Kiro** produced vs. what a human/Claude edited. Rule fol
 | 8 | 15:37:41 | claude-sonnet-4.5 | hooks: test-on-save, module-docs-sync | 0.34 | → 10.82 (lag) |
 | 9 | 15:38:20 | claude-sonnet-4.5 | hooks fix (guard order, matcher anchors) | 0.31 | → 11.49 |
 | 10 | 15:38:54 | claude-sonnet-4.5 | steering: fix product.md, add testing.md + security.md | 0.46 | 11.49 → 12.02 |
+| 11 | 2026-11-06 ~19:40 | auto (CLI 3.1.0, V3) | probe: `--no-interactive "/usage"` (V3 headless sends slash commands to the model) | not printed | 12.02 → |
+| 12 | 2026-11-06 ~19:41 | auto (CLI 3.1.0, V3) | probe: `--trust-workspace --no-interactive "/hooks"` (model read `.kiro/hooks/` files; no file written) | not printed | → 12.39 |
 
-**Total: 11.97 credits reported by the CLI; 12.02 of 50 per `/usage` (Kiro Free, resets 2026-12-01). 18 credits remain under the 30-credit budget.** (`/usage` probes themselves cost no credits.)
+**Total after #10: 12.02 of 50 per `/usage`.** #11–#12 (Nov 6, environment probes for CLI 3.1.0, no repo files changed) cost 0.37, so **12.39 of 50** (Kiro Free, resets 2026-12-01). 17.6 credits remain under the 30-credit budget. `/usage` probes through the V2 engine cost no credits; through V3 `--no-interactive` they do.
 
 ## What each invocation did
 
@@ -78,3 +80,4 @@ Produced: `product.md` edited, `testing.md`, `security.md` created (front matter
 - **CLI version vs hooks:** installed CLI is 2.3.0 (V2 harness). Docs say standalone `.kiro/hooks/*.json` (schema `v1`) is loaded by IDE 1.0 and CLI V3; [INFERENCE] CLI 2.3.0 ignores them (2.x keeps hooks in agent config). The hooks were therefore *authored* by Kiro CLI but have **not been executed** by a Kiro runtime here. Verify in Kiro IDE (≥1.0) once the app exists; the script itself passes `sh -n`, but `node` was absent from the shell used for review, so the JSON-extraction branch is untested.
 - **Specs:** CLI 2.3.0 has no spec subcommand; the three spec phases were produced by prompting Kiro's agent to follow the spec format and write the files directly (the `.kiro/specs/<feature>/{requirements,design,tasks}.md` layout in the docs). Task statuses in `tasks.md` are all `[ ]`; the Kiro IDE "Start task" flow has not been exercised.
 - Spec content is Kiro-generated and reviewed only by reading; the design's TypeScript snippets have not been compiled.
+- **CLI 3.1.0 installed Nov 6** (static musl build in `~/.local/share/kiro-cli-3`, same GitHub login; run via `ops/kiro3.sh` in the company repo, which wraps it in steam-run because the V3 engine's bundled glibc `node` cannot exec on NixOS). It has `--mode spec` and `--trust-workspace` (loads workspace hooks). Whether the hooks actually fire is still unverified: probe #12's listing was the model reading the JSON, not the runtime's loaded-hooks report.
