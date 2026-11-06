@@ -23,6 +23,9 @@ Honest record of what **Kiro** produced vs. what a human/Claude edited. Rule fol
 | 10 | 15:38:54 | claude-sonnet-4.5 | steering: fix product.md, add testing.md + security.md | 0.46 | 11.49 → 12.02 |
 | 11 | 2026-11-06 ~19:40 | auto (CLI 3.1.0, V3) | probe: `--no-interactive "/usage"` (V3 headless sends slash commands to the model) | not printed | 12.02 → |
 | 12 | 2026-11-06 ~19:41 | auto (CLI 3.1.0, V3) | probe: `--trust-workspace --no-interactive "/hooks"` (model read `.kiro/hooks/` files; no file written) | not printed | → 12.39 |
+| 13 | 2026-11-06 ~22:25 | auto (CLI 3.1.0, V2) | mistaken probe: `/subscribe` is not a slash command, so V2 also sent it to the model | not printed | 12.39 → 12.51 |
+| — | 2026-11-06 22:3x | — | **Identity switch:** the kiroween-2026 grant (4,000 bonus credits) landed on the owner's *Google* Kiro identity (same email, separate Kiro account). CLI logged out of the GitHub identity and into Google (owner approved in his own browser). Rows #1–#13 were billed to the GitHub identity's free plan; from #14 on, the Google identity's bonus credits | — | Google: 0.00/4000 |
+| 14 | 2026-11-06 22:35 | claude-sonnet-5.5 (V3, spec mode) | **build task 1**: workspace scaffold (npm workspaces, strict TS, Vitest maxWorkers 2, ESLint/Prettier, engine/server/web packages) | not printed | 0.00 → 2.64 (bonus) |
 
 **Total after #10: 12.02 of 50 per `/usage`.** #11–#12 (Nov 6, environment probes for CLI 3.1.0, no repo files changed) cost 0.37, so **12.39 of 50** (Kiro Free, resets 2026-12-01). 17.6 credits remain under the 30-credit budget. `/usage` probes through the V2 engine cost no credits; through V3 `--no-interactive` they do.
 

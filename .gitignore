@@ -4,3 +4,4 @@ coverage/
 .env
 *.log
 data/cache/
+.kiro-runs/

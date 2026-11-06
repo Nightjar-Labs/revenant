@@ -1,6 +1,6 @@
 # Implementation Plan
 
-- [ ] 1. Workspace scaffold and tooling configuration
+- [x] 1. Workspace scaffold and tooling configuration
   - Initialize npm workspaces monorepo with `packages/engine`, `packages/server`, `packages/web`
   - Configure TypeScript strict mode with `noUncheckedIndexedAccess` in root and per-package `tsconfig.json`
   - Install and configure Vitest with `fast-check` for property-based testing

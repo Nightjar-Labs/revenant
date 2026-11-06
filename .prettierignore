@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+.kiro/
+.kiro-runs/
+data/
+docs/
+package-lock.json
+*.md
+LICENSE
