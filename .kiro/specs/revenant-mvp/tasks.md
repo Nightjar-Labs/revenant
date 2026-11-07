@@ -433,8 +433,8 @@
     - Load pipeline in web editor, verify graph renders correctly
   - _Requirements: 10.8 (themed + plain labels), product.md (Halloween naming convention)_
 
-- [ ] 21. README with quickstart and module reference
-  - 21.1. Write `README.md` in project root with sections:
+- [x] 21. README with quickstart and module reference
+  - [x] 21.1. Write `README.md` in project root with sections:
     - Introduction (Revenant purpose, target users)
     - Installation (Node 22, `npm install`, `npm run build`)
     - Quickstart (start server with `npm run dev`, open web editor, create first pipeline, view Haunting URL)
@@ -444,12 +444,12 @@
     - API reference (`GET /api/pipes`, `POST /api/pipes`, `GET /h/:id.*`, etc.)
     - Testing (`npm test`, `npm run lint`)
     - License (MIT)
-  - 21.2. Create `docs/module-reference.md` with detailed operator docs:
+  - [x] 21.2. Create `docs/module-reference.md` with detailed operator docs:
     - Per operator: name, themed label, config schema, input/output ports, behavior description, examples
     - Include SSRF protection notes for fetch-feed and fetch-json
   - _Requirements: All (documentation of complete system)_
 
-- [ ] 22. Final checkpoint: run all tests, lint, and build
+- [x] 22. Final checkpoint: run all tests, lint, and build
   - Run `npm test` — assert all unit, property-based, integration, and e2e tests pass
   - Run `npm run lint` — assert zero ESLint and Prettier errors
   - Run `npm run build` — assert TypeScript compilation succeeds for all packages

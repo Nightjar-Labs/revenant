@@ -48,6 +48,10 @@ Honest record of what **Kiro** produced vs. what a human/Claude edited. Rule fol
 | 34 | 2026-11-06 23:44 | claude-sonnet-5.5 (V3, spec mode) | **build task 19**: save, load, pipe list; 504 tests | not printed | 107.27 → 112.90 |
 | 35 | 2026-11-06 23:51 | claude-sonnet-5.5 (V3, spec mode) | **build task 20**: Halloween theme, seeded `hacker-news-rust-only` pipe | not printed | 112.90 → 119.81 |
 | 36 | 2026-11-06 23:55 | claude-sonnet-5.5 (V3) | **UI follow-up** (prompt by Claude after the browser smoke): Subscribe row with the three Haunting URLs + copy buttons after save/load; no auto-zoom above 1 on drop; 528 tests. Claude re-checked both in headless Chromium | not printed | 119.81 → 125.74 |
+| 37 | 2026-11-07 00:00 | claude-sonnet-5.5 (V3, spec mode) | **build task 21**: README (quickstart, module and API reference) | not printed | 125.74 → 131.31 |
+| 38 | 2026-11-07 00:03 | claude-sonnet-5.5 (V3, spec mode) | **build task 22**: final checkpoint (all tests, lint, build) | not printed | 131.31 → 132.75 |
+
+**Build complete (Nov 7, 03:07 TR):** all 22 tasks of `revenant-mvp` done by Kiro; **132.75 of 4,000 bonus credits** used (tasks, one hook fix, two review follow-ups). Claude ran the documented quickstart (`npm run dev`): editor on :5173 with `/api` proxied, seeded pipe listed, its Haunting served on :3000. The three "Checkpoint" lines in tasks.md stay unticked; the checks they describe pass.
 
 **Claude's smoke checks (no Kiro credits):** after task 14, built server on a port: health, modules, live Hacker News preview through fetch → truncate → output, save/list/delete, `/h/<id>.xml` 200 with 5 well-formed RSS items, ETag revalidation 304, `.atom` and `.json` 200, metadata-IP fetch refused with the SSRF error. After task 19, built web app (vite preview) in headless Chromium: palette drag-and-drop, handle-to-handle edges, URL and limit config, Run Preview, Ghost Inspector showing the 5 live items, Save (name dialog) → New → Load restores 3 nodes and 2 edges. Found: the editor never shows the Haunting URL, and the first drop zooms the canvas to 2× so new nodes overlap (sent to Kiro as a follow-up).
 
