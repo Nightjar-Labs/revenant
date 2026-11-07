@@ -11,6 +11,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import { useCallback, useEffect, useRef, useState, type DragEvent } from 'react';
 
+import { DEFAULT_VIEWPORT, FIT_VIEW_OPTIONS } from '../canvas-view.js';
 import { canConnect, DRAG_MIME, INCOMPATIBLE_PORTS_MESSAGE } from '../graph.js';
 import { usePipelineStore } from '../store.js';
 import { ModuleNode } from './ModuleNode.js';
@@ -31,7 +32,13 @@ function CanvasInner() {
   const onConnect = usePipelineStore((s) => s.onConnect);
   const addNode = usePipelineStore((s) => s.addNode);
   const selectNode = usePipelineStore((s) => s.selectNode);
-  const { screenToFlowPosition } = useReactFlow();
+  const loadRevision = usePipelineStore((s) => s.loadRevision);
+  const { screenToFlowPosition, fitView } = useReactFlow();
+
+  // Fit the view only after a pipeline is loaded, never when a node is dropped.
+  useEffect(() => {
+    if (loadRevision > 0) void fitView(FIT_VIEW_OPTIONS);
+  }, [loadRevision, fitView]);
 
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const tooltipTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -91,7 +98,8 @@ function CanvasInner() {
         onDragOver={onDragOver}
         onDrop={onDrop}
         colorMode="dark"
-        fitView
+        defaultViewport={DEFAULT_VIEWPORT}
+        fitViewOptions={FIT_VIEW_OPTIONS}
       >
         <Background />
         <Controls />

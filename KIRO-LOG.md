@@ -46,6 +46,8 @@ Honest record of what **Kiro** produced vs. what a human/Claude edited. Rule fol
 | 32 | 2026-11-06 23:36 | claude-sonnet-5.5 (V3, spec mode) | **build task 17**: config panel per module type | not printed | 91.86 → 98.88 |
 | 33 | 2026-11-06 23:40 | claude-sonnet-5.5 (V3, spec mode) | **build task 18**: Ghost Inspector (per-node item preview) | not printed | 98.88 → 107.27 |
 | 34 | 2026-11-06 23:44 | claude-sonnet-5.5 (V3, spec mode) | **build task 19**: save, load, pipe list; 504 tests | not printed | 107.27 → 112.90 |
+| 35 | 2026-11-06 23:51 | claude-sonnet-5.5 (V3, spec mode) | **build task 20**: Halloween theme, seeded `hacker-news-rust-only` pipe | not printed | 112.90 → 119.81 |
+| 36 | 2026-11-06 23:55 | claude-sonnet-5.5 (V3) | **UI follow-up** (prompt by Claude after the browser smoke): Subscribe row with the three Haunting URLs + copy buttons after save/load; no auto-zoom above 1 on drop; 528 tests. Claude re-checked both in headless Chromium | not printed | 119.81 → 125.74 |
 
 **Claude's smoke checks (no Kiro credits):** after task 14, built server on a port: health, modules, live Hacker News preview through fetch → truncate → output, save/list/delete, `/h/<id>.xml` 200 with 5 well-formed RSS items, ETag revalidation 304, `.atom` and `.json` 200, metadata-IP fetch refused with the SSRF error. After task 19, built web app (vite preview) in headless Chromium: palette drag-and-drop, handle-to-handle edges, URL and limit config, Run Preview, Ghost Inspector showing the 5 live items, Save (name dialog) → New → Load restores 3 nodes and 2 edges. Found: the editor never shows the Haunting URL, and the first drop zooms the canvas to 2× so new nodes overlap (sent to Kiro as a follow-up).
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { graphSignature } from '../graph.js';
 import { usePipelineStore } from '../store.js';
+import { HauntingPanel } from './HauntingPanel.js';
 import { LoadDialog, SaveDialog } from './PipeDialogs.js';
 
 /** Delay between the last graph change and the automatic preview run (task 18.3). */
@@ -77,6 +78,7 @@ export function Toolbar() {
         Auto-preview
       </label>
       <span className="toolbar-pipe muted">{metaName === '' ? 'Unsaved pipeline' : metaName}</span>
+      <HauntingPanel />
       {dialog === 'save' && (
         <SaveDialog
           onClose={() => {

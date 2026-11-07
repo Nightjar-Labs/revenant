@@ -58,6 +58,8 @@ export interface PipelineStore {
   /** Pipeline being edited: saved id (null for a new pipeline) and its name. */
   meta: PipeMeta;
   saveStatus: SaveStatus;
+  /** Bumped each time a saved pipeline is loaded; the canvas fits the view to it once per bump. */
+  loadRevision: number;
   toast: Toast | null;
   /** Saved pipelines offered by the Load dialog. */
   pipeList: PipeSummary[];
@@ -127,6 +129,7 @@ export const usePipelineStore = create<PipelineStore>((set, get) => ({
   autoPreview: false,
   meta: { id: null, name: '' },
   saveStatus: 'idle',
+  loadRevision: 0,
   toast: null,
   pipeList: [],
   pipeListStatus: 'idle',
@@ -180,6 +183,7 @@ export const usePipelineStore = create<PipelineStore>((set, get) => ({
         nodes,
         edges,
         meta: { id: doc.meta.id, name: doc.meta.name },
+        loadRevision: get().loadRevision + 1,
         ...resetCanvasState(),
       });
       return true;
