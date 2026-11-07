@@ -5,3 +5,4 @@ coverage/
 *.log
 data/cache/
 .kiro-runs/
+SUBMISSION.md
